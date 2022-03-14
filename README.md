@@ -44,6 +44,13 @@ Each new plot function should be defined in a different file in the
 two mandatory arguments: `df`, the input Pandas DataFrame, and `kwargs`, which
 is a list of additional arguments passed to the function.
 
+```python
+# Other function defs here
+
+def plot(df, kwargs):
+    sns.lineplot(...)
+```
+
 It is **recommended**, though not required, to expect each additional argument to be
 of the form `key=value` (or just `key` if the argument enables something), so
 the entire list may look like the following:
