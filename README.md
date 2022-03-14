@@ -15,22 +15,41 @@ These utilities have been tested with the following software versions:
 
 ##  Usage
 
-From the waveform viewer, export your data as a `.csv` file to the `data`
-directory.  Make sure to enable the "Interpolate" option so each waveform has
-the same time axis.  Then, invoke the main script as follows:
+From the waveform viewer, export your data as a `.csv` file.  Make sure to
+enable the "Interpolate" option so each waveform has the same time axis.  Then,
+invoke the main script as follows:
 
 ```
 ./cadence_plot.py [OPTIONS] PLOT INPUT
     -h  --help      Display this message
     -v  --verbose   Enable verbose output
-    -f  --filetype  Choose filetype (default: `svg`)
+    -s  --summary  Choose filetype (default: `svg`)
 
     PLOT is the plot you wish to create, defined in `plot_functions.py`:
     gmid
     inputrefnoise
+    ...
 
     INPUT is the input data file, e.g. `data/my_data.csv`
 ```
 
+This script can also do plotting with Maestro summary data instead of a
+waveform.  In this case, use the `-s` or `--summary` switch and ensure that the
+selected plotting function supports it.
+
 ##  Writing Additional Plot Functions
 
+Each new plot function should be defined in a different file in the
+`plot_functions` directory.  This file must have a function called `plot` with
+two mandatory arguments: `df`, the input Pandas DataFrame, and `kwargs`, which
+is a list of additional arguments passed to the function.
+
+It is **recommended**, though not required, to expect each additional argument to be
+of the form `key=value` (or just `key` if the argument enables something), so
+the entire list may look like the following:
+
+```python
+kwargs = ['filetype=svg', 'extraplot', 'scale=log']
+```
+
+This makes parsing the `kwargs` trivial.
