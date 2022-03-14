@@ -20,7 +20,7 @@ enable the "Interpolate" option so each waveform has the same time axis.  Then,
 invoke the main script as follows:
 
 ```
-./cadence_plot.py [OPTIONS] PLOT INPUT
+./cadence_plot.py [OPTIONS] PLOT INPUT [kwargs]
     -h  --help      Display this message
     -v  --verbose   Enable verbose output
     -s  --summary  Choose filetype (default: `svg`)
