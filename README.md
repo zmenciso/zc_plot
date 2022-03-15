@@ -28,9 +28,11 @@ invoke the main script as follows:
     PLOT is the plot you wish to create, defined in `plot_functions.py`:
     gmid
     inputrefnoise
+    replot
     ...
 
-    INPUT is the input data file, e.g. `data/my_data.csv`
+INPUT is the input data file, e.g. `data/my_data.csv`.
+If no input and kwargs are given, prints the usage for the given PLOT.
 ```
 
 This script can also do plotting with Maestro summary data instead of a
@@ -42,21 +44,39 @@ selected plotting function supports it.
 Each new plot function should be defined in a different file in the
 `plot_functions` directory.  This file must have a function called `plot` with
 two mandatory arguments: `df`, the input Pandas DataFrame, and `kwargs`, which
-is a list of additional arguments passed to the function.
+is a list of additional arguments passed to the function.  This file must also
+have a function called `usage` with no arguments.
 
 ```python
 # Other function defs here
+
+def usage():
+    print('Interesting things about this program')
 
 def plot(df, kwargs):
     sns.lineplot(...)
 ```
 
-It is **recommended**, though not required, to expect each additional argument to be
-of the form `key=value` (or just `key` if the argument enables something), so
-the entire list may look like the following:
+It is **recommended**, though not required, to expect each additional argument
+to be of the form `key=value`, which makes parsing the `kwargs` trivial.  For
+example:
 
-```python
-kwargs = ['filetype=svg', 'extraplot', 'scale=log']
+```
+./cadence_plot.py replot path/to/data.csv filetype=png logx=true hue=Vov
 ```
 
-This makes parsing the `kwargs` trivial.
+```python
+kwargs = ['filetype=png', 'logx=true', 'hue=Vov']
+
+while kwargs:
+    key, value = kwargs[0].split('=')
+
+    if key == 'filetype':
+        filetype = value
+    elif key == 'logx':
+        logx = bool(value)
+    ...
+
+    kwargs.pop(0)
+
+```
