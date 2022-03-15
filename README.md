@@ -39,6 +39,15 @@ This script can also do plotting with Maestro summary data instead of a
 waveform.  In this case, use the `-s` or `--summary` switch and ensure that the
 selected plotting function supports it.
 
+To provide a multi-word kwarg, either enclose the entire kwarg definition in
+quotes or just the value, e.g.:
+
+```
+./cadence_plot.py replot 'data.csv' 'xlabel=Time [s]'
+OR
+./cadence_plot.py replot 'data.csv' xlabel='Time [s]'
+```
+
 ##  Writing Additional Plot Functions
 
 Each new plot function should be defined in a different file in the
@@ -57,8 +66,8 @@ def plot(df, kwargs):
     sns.lineplot(...)
 ```
 
-It is also possible to call other plot functions.  For example, using `replot`
-is a convenient way to draw line plots without re-parsing the kwargs.
+It is also possible to **call other plot functions**.  For example, using
+`replot` is a convenient way to draw line plots without re-parsing the kwargs.
 
 ```python
 from replot import plot
