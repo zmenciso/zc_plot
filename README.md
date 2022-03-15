@@ -57,6 +57,18 @@ def plot(df, kwargs):
     sns.lineplot(...)
 ```
 
+It is also possible to call other plot functions.  For example, using `replot`
+is a convenient way to draw line plots without re-parsing the kwargs.
+
+```python
+from replot import plot
+
+# Some DataFrame transformations here
+kwargs.append('hue=my_new_metric')
+
+plot(df, kwargs)
+```
+
 It is **recommended**, though not required, to expect each additional argument
 to be of the form `key=value`, which makes parsing the `kwargs` trivial.  For
 example:
