@@ -25,6 +25,8 @@ def usage():
 
 
 def plot(df, kwargs):
+    # TODO: Fix sig figs on legend!
+
     figsize = (18 / 3, 9 / 3)
     alpha = 0.8
     logy = False
@@ -76,6 +78,9 @@ def plot(df, kwargs):
     if palette:
         sns.set_palette(sns.color_palette(palette))
     plt.figure(figsize=figsize)
+
+    if hue:
+        df[hue] = df[hue].astype(float)
 
     ax = sns.lineplot(data=df, x='x', y=y, hue=hue, style=style, alpha=alpha)
     plt.xlabel(xlabel)
