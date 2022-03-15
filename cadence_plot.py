@@ -9,7 +9,6 @@ import re
 import pandas as pd
 import numpy as np
 
-
 # Globals
 
 PROJ_DIR = os.path.dirname(os.path.realpath(__file__))
@@ -18,7 +17,9 @@ CWD = os.getcwd()
 
 for entry in os.scandir(FUNC_DIR):
     if entry.is_file() and os.path.splitext(entry)[-1] == '.py':
-        exec(f'from {os.path.basename(FUNC_DIR)} import {os.path.splitext(os.path.basename(entry))[0]}')
+        exec(
+            f'from {os.path.basename(FUNC_DIR)} import {os.path.splitext(os.path.basename(entry))[0]}'
+        )
 
 PLOT = None
 INPUT = None
@@ -43,7 +44,8 @@ PLOT is the plot you wish to create, defined in `plot_functions.py`:''')
 
     print('''
 INPUT is the input data file, e.g. `data/my_data.csv`.
-If no INPUT and no kwargs are given, prints the usage for the specified PLOT.''')
+If no INPUT and no kwargs are given, prints the usage for the specified PLOT.'''
+          )
 
     sys.exit(exitcode)
 
@@ -59,13 +61,13 @@ def ingest_wave(filename):
     x = df_in.iloc[:, 0]
     for label, content in df_in.iloc[:, 1::2].iteritems():
         param = re.findall(r".+ \((.*)\) .+", label)[0].split(",")
-        d_fill = pd.DataFrame(np.array([x, content]).T,
+        d_fill = pd.DataFrame(np.array([x.astype(float), content.astype(float)]).T,
                               columns=['x', label.split()[0]])
         for term in param:
             d_fill[term.split('=')[0]] = np.repeat(float(term.split('=')[1]),
                                                    len(d_fill['x']))
 
-        df = pd.concat([df, d_fill], axis=0)
+        df = pd.concat([df, d_fill], axis=0, ignore_index=True)
 
     return df
 
