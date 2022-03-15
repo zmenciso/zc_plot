@@ -4,6 +4,7 @@
 from datetime import datetime
 import matplotlib.pyplot as plt
 import seaborn as sns
+import sys
 
 
 def usage():
@@ -69,6 +70,8 @@ def plot(df, kwargs):
             ylabel = value
         elif key == 'xlim':
             xlim = tuple(map(float, value.split(',')))
+        else:
+            print(f'ERROR: Unknown kwarg {key}', file=sys.stderr)
 
     if palette:
         sns.set_palette(sns.color_palette(palette))
