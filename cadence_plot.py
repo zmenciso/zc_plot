@@ -73,7 +73,28 @@ def ingest_wave(filename):
 
 
 def ingest_summary(filename):
-    pass
+    if os.path.splitext(filename)[-1] != '.csv':
+        print('ERROR: Input file must be .csv', file=sys.stderr)
+        sys.exit(3)
+
+    df_in = pd.read_csv(filename)
+    param = df_in.loc[df_in["Point"].str.contains("Parameters"), "Point"]
+
+    df = pd.DataFrame(
+        param.str.findall(r"[0-9a-zA-Z\.]+=([0-9a-zA-Z\.]+)").to_list(),
+        columns=re.findall(r"([0-9a-zA-Z\.]+)=[0-9a-zA-Z\.]+", param[0]),
+    )
+
+    outputs = df_in.loc[df_in["Point"] == "1", "Output"]
+
+    for output in outputs:
+        d_fill = pd.DataFrame(
+            np.array(df_in[df_in["Output"] == output]["Nominal"].astype(float)).T,
+            columns=[output],
+        )
+        df = pd.concat([df, d_fill], axis=1)
+
+    return df
 
 
 # Main execution
@@ -87,8 +108,8 @@ if __name__ == '__main__':
             usage(0)
         elif args[0] == '-v' or args[0] == '--verbose':
             VERBOSE = True
-        elif args[0] == '-f' or args[0] == '--filetype':
-            FILETYPE = args.pop(1)
+        elif args[0] == '-s' or args[0] == '--summary':
+            SUMMARY = True
         else:
             usage(1)
 
