@@ -81,10 +81,11 @@ def ingest_summary(filename):
     param = df_in.loc[df_in["Point"].str.contains("Parameters"), "Point"]
 
     df = pd.DataFrame(
-        param.str.findall(r"[0-9a-zA-Z\.]+=([0-9a-zA-Z\.]+)").to_list(),
-        columns=re.findall(r"([0-9a-zA-Z\.]+)=[0-9a-zA-Z\.]+", param[0]),
+        param.str.findall(r"[0-9a-z\.-]+=([0-9a-z\.-]+)").to_list(),
+        columns=re.findall(r"([0-9a-z\.-]+)=[0-9a-z\.-]+", param[0]),
     )
 
+    df = df.astype(float)
     outputs = df_in.loc[df_in["Point"] == "1", "Output"]
 
     for output in outputs:

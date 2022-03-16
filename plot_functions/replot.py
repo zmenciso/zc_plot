@@ -12,7 +12,7 @@ def usage():
     y=str                       Change y (default: second column)
     hue=str         h=str       Change hue (WARNING default: None)
     style=str       s=str       Specify style (default: None)
-    size=tuple                  Change figsize (default: 18/3,19/3)
+    size=tuple                  Change figsize (default: '6,3')
     msize=float     ms=float    Change marker size for scatter (default: 10)
     alpha=float     a=float     Change alpha (default: 0.5)
     palette=str                 Change palette (default: 'viridis')
