@@ -70,12 +70,12 @@ It is also possible to **call other plot functions**.  For example, using
 `replot` is a convenient way to draw line plots without re-parsing the kwargs.
 
 ```python
-from replot import plot
+from plot_functions import replot
 
-# Some DataFrame transformations here
-kwargs.append('hue=my_new_metric')
+df_new = # Some DataFrame transformations here
+kwargs += ['hue=my_new_metric', 'ptype=scatter']
 
-plot(df, kwargs)
+plot(df_new, kwargs)
 ```
 
 It is **recommended**, though not required, to expect each additional argument
