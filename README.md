@@ -89,15 +89,13 @@ example:
 ```python
 kwargs = ['filetype=png', 'logx=true', 'hue=Vov']
 
-while kwargs:
-    key, value = kwargs[0].split('=')
+param = dict(
+    # Default values
+    )
 
-    if key == 'filetype':
-        filetype = value
-    elif key == 'logx':
-        logx = bool(value)
-    ...
-
-    kwargs.pop(0)
+for arg in kwargs:
+    key, value = arg.split('=')
+    if key in param:
+        param[key] = value
 
 ```
