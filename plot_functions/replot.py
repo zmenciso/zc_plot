@@ -4,6 +4,7 @@
 from datetime import datetime
 import matplotlib.pyplot as plt
 import seaborn as sns
+import re
 
 
 def usage():
@@ -14,14 +15,17 @@ def usage():
     size=tuple                  Change figsize (default: 18/3,19/3)
     msize=float     ms=float    Change marker size for scatter (default: 10)
     alpha=float     a=float     Change alpha (default: 0.5)
+    palette=str                 Change palette (default: 'viridis')
     logx=bool       lx=bool     Enable/disable log for x-axis (default: False)
     logy=bool       ly=bool     Enable/disable log for y-axis (default: False)
     bbox=bool       bb=bool     Enable/disable bbox for legend (default: True)
     xlabel=str      xl=str      Change x axis label (default: 'x')
     ylabel=str      yl=str      Change y axis label (default: y)
-    ltitle=str      lt=str      Change legend title (default: hue)
+    ltitle=str      lt=str      Change legend title (default: automatic)
     xlim=tuple                  Change xlim (default: full range)
     ptype=str       pt=str      Change the plot type (default: 'line')
+    axes=str        ax=str      Change axes style (default: 'whitegrid')
+    context=str     cx=str      Scale plot elements (default: 'notebook')
     filetype=str    ft=str      Change filetype (default: 'svg')
     filename=str    fn=str      Custom filename''')
 
@@ -40,7 +44,9 @@ def key_expander(key):
             'pt': 'ptype',
             'ft': 'filetype',
             'fn': 'filename',
-            'ms': 'msize'
+            'ms': 'msize',
+            'ax': 'axes',
+            'cx': 'context'
             }
 
     if key in conversion:
@@ -60,8 +66,10 @@ def plot(df, kwargs):
         'bbox': True,
         'filetype': 'svg',
         'filename': None,
+        'ltitle': None,
         'xlabel': 'x',
-        'palette': None,
+        'axes': 'whitegrid',
+        'palette': 'viridis',
         'y': df.columns[1],
         'hue': None,
         'style': None,
@@ -70,7 +78,6 @@ def plot(df, kwargs):
     }
 
     param['ylabel'] = param['y']
-    param['l_title'] = param['hue']
     param['xlim'] = (f"{df['x'].iloc[0]},{df['x'].iloc[-1]}")
 
     for arg in kwargs:
@@ -86,21 +93,24 @@ def plot(df, kwargs):
     param['bbox'] = bool(param['bbox'])
     param['xlim'] = tuple(map(float, param['xlim'].split(',')))
 
-    if param['palette']:
-        sns.set_palette(sns.color_palette(param['palette']))
+    if not param['ltitle']:
+        param['ltitle'] = f"{param['hue']}/{param['style']}" if param['style'] else param['hue']
 
     plt.figure(figsize=param['figsize'])
 
     if param['hue']:
-        df[param['hue']] = df[param['hue']].astype(float)
+        df[param['hue']] = df[param['hue']].astype(str)
 
+    sns.set_style(param['axes'])
+    sns.set_context(param['context'])
     if param['ptype'] == 'line':
         ax = sns.lineplot(data=df, x='x', y=param['y'], hue=param['hue'],
-                          style=param['style'], alpha=param['alpha'])
+                style=param['style'], alpha=param['alpha'],
+                palette=param['palette'])
     elif param['ptype'] == 'scatter':
         ax = sns.scatterplot(data=df, x='x', y=param['y'], hue=param['hue'],
-                             style=param['style'], alpha=param['alpha'],
-                             edgecolor=None, s=param['msize'])
+                style=param['style'], alpha=param['alpha'], edgecolor=None,
+                s=param['msize'], palette=param['palette'])
 
     plt.xlabel(param['xlabel'])
     plt.ylabel(param['ylabel'])
@@ -117,12 +127,13 @@ def plot(df, kwargs):
                    labels,
                    loc='upper left',
                    bbox_to_anchor=(1.02, 1),
-                   title=param['l_title'],
+                   title=param['ltitle'],
                    borderaxespad=0)
 
     plt.tight_layout()
     if param['filename']:
         plt.savefig(f'{param["filename"]}.{param["filetype"]}')
     else:
+        param['y'] = re.sub('/', '-', param['y'])
         plt.savefig(
             f'{param["y"]}_{datetime.now().strftime("%Y-%m-%dT%H:%M:%S")}.{param["filetype"]}')
