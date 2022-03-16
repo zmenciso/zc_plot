@@ -19,13 +19,13 @@ def usage():
 
 def plot(df, kwargs):
     param = {
-            'gmid': 'gm/Id',
-            'ft': 'ft',
-            'vgs': 'Vgs',
-            'id': 'Id',
-            'idwl': 'Id/(W/L)',
-            'vov': 'Vov'
-            }
+        'gmid': 'gm/Id',
+        'ft': 'ft',
+        'vgs': 'Vgs',
+        'id': 'Id',
+        'idwl': 'Id/(W/L)',
+        'vov': 'Vov'
+    }
 
     for arg in kwargs:
         key, value = arg.split('=')
@@ -34,14 +34,23 @@ def plot(df, kwargs):
 
     # Plot gm/Id vs Vov
     df['x'] = df[param['vov']]
-    kwargs_gmid = kwargs + [f'y={param["gmid"]}', 'pt=scatter', 'xlabel=Vov [V]', 'ylabel=Gm/Id [1/V]']
+    kwargs_gmid = kwargs + [
+        f'y={param["gmid"]}', 'pt=scatter', 'xlabel=Vov [V]',
+        'ylabel=Gm/Id [1/V]'
+    ]
     replot.plot(df, kwargs_gmid)
 
     # Plot Id/(W/L) vs gm/Id
     df['x'] = df[param['gmid']]
-    kwargs_idwl = kwargs + [f'y={param["idwl"]}', 'pt=scatter', 'xlabel=Gm/Id [1/V]', 'ylabel=Id/(W/L) [A]']
+    kwargs_idwl = kwargs + [
+        f'y={param["idwl"]}', 'pt=scatter', 'xlabel=Gm/Id [1/V]',
+        'ylabel=Id/(W/L) [A]'
+    ]
     replot.plot(df, kwargs_idwl)
 
     # Plot ft vs gm/Id
-    kwargs_ft = kwargs + [f'y={param["ft"]}', 'pt=scatter', 'xlabel=Gm/Id [1/V]', 'ylabel=ft [Hz]']
+    kwargs_ft = kwargs + [
+        f'y={param["ft"]}', 'pt=scatter', 'xlabel=Gm/Id [1/V]',
+        'ylabel=ft [Hz]'
+    ]
     replot.plot(df, kwargs_ft)

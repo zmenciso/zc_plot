@@ -61,7 +61,8 @@ def ingest_wave(filename):
     x = df_in.iloc[:, 0]
     for label, content in df_in.iloc[:, 1::2].iteritems():
         param = re.findall(r".+ \((.*)\) .+", label)[0].split(",")
-        d_fill = pd.DataFrame(np.array([x.astype(float), content.astype(float)]).T,
+        d_fill = pd.DataFrame(np.array(
+            [x.astype(float), content.astype(float)]).T,
                               columns=['x', label.split()[0]])
         for term in param:
             d_fill[term.split('=')[0]] = np.repeat(float(term.split('=')[1]),
@@ -90,7 +91,8 @@ def ingest_summary(filename):
 
     for output in outputs:
         d_fill = pd.DataFrame(
-            np.array(df_in[df_in["Output"] == output]["Nominal"].astype(float)).T,
+            np.array(
+                df_in[df_in["Output"] == output]["Nominal"].astype(float)).T,
             columns=[output],
         )
         df = pd.concat([df, d_fill], axis=1)

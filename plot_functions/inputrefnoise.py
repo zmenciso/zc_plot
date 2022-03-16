@@ -21,7 +21,7 @@ def plot(df, kwargs):
         'y': df.columns[1],
         'bins': df.columns[2],
         'delay': 9e-9
-        }
+    }
 
     for arg in kwargs:
         key, value = arg.split('=')
@@ -41,17 +41,18 @@ def plot(df, kwargs):
     for i in range(0, len(df), size := np.unique(df['x']).size):
         time = param['Ts'] + param['delay']
         samples = list()
-        for index, series in df.iloc[i:i+size].iterrows():
+        for index, series in df.iloc[i:i + size].iterrows():
             hue = series[param['bins']]
             if series['x'] >= time:
                 samples.append(series[param['y']])
                 time += param['Ts']
 
         d_fill = pd.concat([d_fill, pd.Series([hue, np.mean(samples)])],
-                           axis=1, ignore_index=True)
+                           axis=1,
+                           ignore_index=True)
 
-    pd_sampled = pd.DataFrame(d_fill.T.values, columns=['x',
-                              param['y']]).iloc[1:, :]
+    pd_sampled = pd.DataFrame(d_fill.T.values,
+                              columns=['x', param['y']]).iloc[1:, :]
 
     kwargs += [f'y={param["y"]}', 'pt=scatter']
     replot.plot(pd_sampled, kwargs)

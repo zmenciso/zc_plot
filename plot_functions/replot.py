@@ -32,22 +32,22 @@ def usage():
 
 def key_expander(key):
     conversion = {
-            'h': 'hue',
-            's': 'style',
-            'a': 'alpha',
-            'lx': 'logx',
-            'ly': 'logy',
-            'bb': 'bbox',
-            'xl': 'xlabel',
-            'yl': 'ylabel',
-            'lt': 'ltitle',
-            'pt': 'ptype',
-            'ft': 'filetype',
-            'fn': 'filename',
-            'ms': 'msize',
-            'ax': 'axes',
-            'cx': 'context'
-            }
+        'h': 'hue',
+        's': 'style',
+        'a': 'alpha',
+        'lx': 'logx',
+        'ly': 'logy',
+        'bb': 'bbox',
+        'xl': 'xlabel',
+        'yl': 'ylabel',
+        'lt': 'ltitle',
+        'pt': 'ptype',
+        'ft': 'filetype',
+        'fn': 'filename',
+        'ms': 'msize',
+        'ax': 'axes',
+        'cx': 'context'
+    }
 
     if key in conversion:
         return conversion[key]
@@ -94,7 +94,8 @@ def plot(df, kwargs):
     param['xlim'] = tuple(map(float, param['xlim'].split(',')))
 
     if not param['ltitle']:
-        param['ltitle'] = f"{param['hue']}/{param['style']}" if param['style'] else param['hue']
+        param['ltitle'] = f"{param['hue']}/{param['style']}" if param[
+            'style'] else param['hue']
 
     plt.figure(figsize=param['figsize'])
 
@@ -104,13 +105,23 @@ def plot(df, kwargs):
     sns.set_style(param['axes'])
     sns.set_context(param['context'])
     if param['ptype'] == 'line':
-        ax = sns.lineplot(data=df, x='x', y=param['y'], hue=param['hue'],
-                style=param['style'], alpha=param['alpha'],
-                palette=param['palette'])
+        ax = sns.lineplot(data=df,
+                          x='x',
+                          y=param['y'],
+                          hue=param['hue'],
+                          style=param['style'],
+                          alpha=param['alpha'],
+                          palette=param['palette'])
     elif param['ptype'] == 'scatter':
-        ax = sns.scatterplot(data=df, x='x', y=param['y'], hue=param['hue'],
-                style=param['style'], alpha=param['alpha'], edgecolor=None,
-                s=param['msize'], palette=param['palette'])
+        ax = sns.scatterplot(data=df,
+                             x='x',
+                             y=param['y'],
+                             hue=param['hue'],
+                             style=param['style'],
+                             alpha=param['alpha'],
+                             edgecolor=None,
+                             s=param['msize'],
+                             palette=param['palette'])
 
     plt.xlabel(param['xlabel'])
     plt.ylabel(param['ylabel'])
@@ -136,4 +147,5 @@ def plot(df, kwargs):
     else:
         param['y'] = re.sub('/', '-', param['y'])
         plt.savefig(
-            f'{param["y"]}_{datetime.now().strftime("%Y-%m-%dT%H:%M:%S")}.{param["filetype"]}')
+            f'{param["y"]}_{datetime.now().strftime("%Y-%m-%dT%H:%M:%S")}.{param["filetype"]}'
+        )
