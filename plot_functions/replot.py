@@ -8,7 +8,8 @@ import re
 
 
 def usage():
-    print('''replot INPUT [kwargs]
+    print('''replot [-s] INPUT [kwargs]
+    x=str                       Change x (default: first column)
     y=str                       Change y (default: second column)
     hue=str         h=str       Change hue (WARNING default: None)
     style=str       s=str       Specify style (default: None)
@@ -75,6 +76,7 @@ def plot(df, kwargs):
         'axes': 'whitegrid',
         'context': 'notebook',
         'palette': 'crest',
+        'x': 'x',
         'y': df.columns[1],
         'hue': None,
         'style': None,
@@ -113,7 +115,7 @@ def plot(df, kwargs):
 
     if param['ptype'] == 'line':
         ax = sns.lineplot(data=df,
-                          x='x',
+                          x=param['x'],
                           y=param['y'],
                           hue=param['hue'],
                           style=param['style'],
@@ -121,7 +123,7 @@ def plot(df, kwargs):
                           palette=cmap)
     elif param['ptype'] == 'scatter':
         ax = sns.scatterplot(data=df,
-                             x='x',
+                             x=param['x'],
                              y=param['y'],
                              hue=param['hue'],
                              style=param['style'],
