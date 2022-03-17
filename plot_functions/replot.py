@@ -15,7 +15,7 @@ def usage():
     size=tuple                  Change figsize (default: '6,3')
     msize=float     ms=float    Change marker size for scatter (default: 10)
     alpha=float     a=float     Change alpha (default: 0.5)
-    palette=str                 Change palette (default: 'viridis')
+    palette=str     c=str       Palette, accepts cubehelix (default: 'crest')
     logx=bool       lx=bool     Enable/disable log for x-axis (default: False)
     logy=bool       ly=bool     Enable/disable log for y-axis (default: False)
     bbox=bool       bb=bool     Enable/disable bbox for legend (default: True)
@@ -23,6 +23,7 @@ def usage():
     ylabel=str      yl=str      Change y axis label (default: y)
     ltitle=str      lt=str      Change legend title (default: automatic)
     xlim=tuple                  Change xlim (default: full range)
+    ylim=tuple                  Change ylim (default: full range)
     ptype=str       pt=str      Change the plot type (default: 'line')
     axes=str        ax=str      Change axes style (default: 'whitegrid')
     context=str     cx=str      Scale plot elements (default: 'notebook')
@@ -35,6 +36,7 @@ def key_expander(key):
         'h': 'hue',
         's': 'style',
         'a': 'alpha',
+        'c': 'palette',
         'lx': 'logx',
         'ly': 'logy',
         'bb': 'bbox',
@@ -68,8 +70,11 @@ def plot(df, kwargs):
         'filename': None,
         'ltitle': None,
         'xlabel': 'x',
+        'xlim': None,
+        'ylim': None,
         'axes': 'whitegrid',
-        'palette': 'viridis',
+        'context': 'notebook',
+        'palette': 'crest',
         'y': df.columns[1],
         'hue': None,
         'style': None,
@@ -78,7 +83,6 @@ def plot(df, kwargs):
     }
 
     param['ylabel'] = param['y']
-    param['xlim'] = (f"{df['x'].iloc[0]},{df['x'].iloc[-1]}")
 
     for arg in kwargs:
         key, value = arg.split('=')
@@ -88,10 +92,10 @@ def plot(df, kwargs):
 
     param['figsize'] = tuple(map(float, param['figsize'].split(',')))
     param['alpha'] = float(param['alpha'])
+    param['msize'] = float(param['msize'])
     param['logy'] = bool(param['logy'])
     param['logx'] = bool(param['logx'])
     param['bbox'] = bool(param['bbox'])
-    param['xlim'] = tuple(map(float, param['xlim'].split(',')))
 
     if not param['ltitle']:
         param['ltitle'] = f"{param['hue']}/{param['style']}" if param[
@@ -100,10 +104,13 @@ def plot(df, kwargs):
     plt.figure(figsize=param['figsize'])
 
     if param['hue']:
-        df[param['hue']] = df[param['hue']].astype(str)
+        df[param['hue']] = df[param['hue']].astype(float)
+
+    cmap = sns.color_palette(param['palette'], as_cmap=True)
 
     sns.set_style(param['axes'])
     sns.set_context(param['context'])
+
     if param['ptype'] == 'line':
         ax = sns.lineplot(data=df,
                           x='x',
@@ -111,7 +118,7 @@ def plot(df, kwargs):
                           hue=param['hue'],
                           style=param['style'],
                           alpha=param['alpha'],
-                          palette=param['palette'])
+                          palette=cmap)
     elif param['ptype'] == 'scatter':
         ax = sns.scatterplot(data=df,
                              x='x',
@@ -121,12 +128,18 @@ def plot(df, kwargs):
                              alpha=param['alpha'],
                              edgecolor=None,
                              s=param['msize'],
-                             palette=param['palette'])
+                             palette=cmap)
 
     plt.xlabel(param['xlabel'])
     plt.ylabel(param['ylabel'])
 
-    plt.xlim(param['xlim'])
+    if param['xlim']:
+        param['xlim'] = tuple(map(float, param['xlim'].split(',')))
+        plt.xlim(param['xlim'])
+    if param['ylim']:
+        param['ylim'] = tuple(map(float, param['ylim'].split(',')))
+        plt.ylim(param['ylim'])
+
     if param['logx']:
         ax.set_xscale('log')
     if param['logy']:
