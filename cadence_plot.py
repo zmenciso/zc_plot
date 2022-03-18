@@ -73,6 +73,29 @@ def ingest_wave(filename):
     return df
 
 
+def si_convert(df, columns):
+    # Yes, this is derpy
+    # No, I do not care
+    series = df.squeeze()
+    series = series.str.replace('m', 'e-3', regex=False, case=True)
+    series = series.str.replace('u', 'e-6', regex=False, case=True)
+    series = series.str.replace('n', 'e-9', regex=False, case=True)
+    series = series.str.replace('p', 'e-12', regex=False, case=True)
+    series = series.str.replace('f', 'e-15', regex=False, case=True)
+    series = series.str.replace('a', 'e-18', regex=False, case=True)
+    series = series.str.replace('z', 'e-21', regex=False, case=True)
+    series = series.str.replace('k', 'e3', regex=False, case=True)
+    series = series.str.replace('M', 'e6', regex=False, case=True)
+    series = series.str.replace('G', 'e9', regex=False, case=True)
+    series = series.str.replace('T', 'e12', regex=False, case=True)
+    series = series.str.replace('P', 'e15', regex=False, case=True)
+
+    df = pd.DataFrame(series)
+    df.columns = columns
+
+    return df
+
+
 def ingest_summary(filename):
     if os.path.splitext(filename)[-1] != '.csv':
         print('ERROR: Input file must be .csv', file=sys.stderr)
@@ -83,9 +106,9 @@ def ingest_summary(filename):
 
     df = pd.DataFrame(
         param.str.findall(r"[0-9a-z\.-]+=([0-9a-z\.-]+)").to_list(),
-        columns=re.findall(r"([0-9a-z\.-]+)=[0-9a-z\.-]+", param[0]),
     )
 
+    df = si_convert(df, re.findall(r"([0-9a-z\.-]+)=[0-9a-z\.-]+", param[0]))
     df = df.astype(float)
     outputs = df_in.loc[df_in["Point"] == "1", "Output"]
 
