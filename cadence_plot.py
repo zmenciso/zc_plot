@@ -11,6 +11,22 @@ import numpy as np
 
 # Globals
 
+SI = {
+        'm': 'e-3',
+        'u': 'e-6',
+        'n': 'e-9',
+        'p': 'e-12',
+        'f': 'e-15',
+        'a': 'e-18',
+        'z': 'e-21',
+        'k': 'e3',
+        'M': 'e6',
+        'G': 'e9',
+        'T': 'e12',
+        'P': 'e15',
+        'E': 'e18'
+        }
+
 PROJ_DIR = os.path.dirname(os.path.realpath(__file__))
 FUNC_DIR = PROJ_DIR + '/plot_functions'
 CWD = os.getcwd()
@@ -74,21 +90,11 @@ def ingest_wave(filename):
 
 
 def si_convert(df, columns):
-    # Yes, this is derpy
-    # No, I do not care
     series = df.squeeze()
-    series = series.str.replace('m', 'e-3', regex=False, case=True)
-    series = series.str.replace('u', 'e-6', regex=False, case=True)
-    series = series.str.replace('n', 'e-9', regex=False, case=True)
-    series = series.str.replace('p', 'e-12', regex=False, case=True)
-    series = series.str.replace('f', 'e-15', regex=False, case=True)
-    series = series.str.replace('a', 'e-18', regex=False, case=True)
-    series = series.str.replace('z', 'e-21', regex=False, case=True)
-    series = series.str.replace('k', 'e3', regex=False, case=True)
-    series = series.str.replace('M', 'e6', regex=False, case=True)
-    series = series.str.replace('G', 'e9', regex=False, case=True)
-    series = series.str.replace('T', 'e12', regex=False, case=True)
-    series = series.str.replace('P', 'e15', regex=False, case=True)
+    repl = np.unique(series.str.extract(r'([a-zA-Z])'))
+
+    for item in repl:
+        series = series.str.replace(item, SI[item], regex=False, case=True)
 
     df = pd.DataFrame(series)
     df.columns = columns
