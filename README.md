@@ -3,6 +3,8 @@
 Zephan M. Enciso  
 Intelligent MicroSystems Lab  
 
+![Example](./comp.svg)
+
 ##  Dependencies
 
 These utilities have been tested with the following software versions:
