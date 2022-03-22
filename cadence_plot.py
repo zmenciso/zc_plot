@@ -12,20 +12,20 @@ import numpy as np
 # Globals
 
 SI = {
-        'm': 'e-3',
-        'u': 'e-6',
-        'n': 'e-9',
-        'p': 'e-12',
-        'f': 'e-15',
-        'a': 'e-18',
-        'z': 'e-21',
-        'k': 'e3',
-        'M': 'e6',
-        'G': 'e9',
-        'T': 'e12',
-        'P': 'e15',
-        'E': 'e18'
-        }
+    'm': 'e-3',
+    'u': 'e-6',
+    'n': 'e-9',
+    'p': 'e-12',
+    'f': 'e-15',
+    'a': 'e-18',
+    'z': 'e-21',
+    'k': 'e3',
+    'M': 'e6',
+    'G': 'e9',
+    'T': 'e12',
+    'P': 'e15',
+    'E': 'e18'
+}
 
 PROJ_DIR = os.path.dirname(os.path.realpath(__file__))
 FUNC_DIR = PROJ_DIR + '/plot_functions'
@@ -90,13 +90,12 @@ def ingest_wave(filename):
 
 
 def si_convert(df, columns):
-    series = df.squeeze()
-    repl = np.unique(series.str.extract(r'([a-zA-Z])'))
+    for col in df:
+        repl = np.unique(df[col].str.extract(r'([a-zA-Z])'))
 
-    for item in repl:
-        series = series.str.replace(item, SI[item], regex=False, case=True)
+        for item in repl:
+            df[col] = df[col].str.replace(item, SI[item], regex=False, case=True)
 
-    df = pd.DataFrame(series)
     df.columns = columns
 
     return df
@@ -111,8 +110,7 @@ def ingest_summary(filename):
     param = df_in.loc[df_in["Point"].str.contains("Parameters"), "Point"]
 
     df = pd.DataFrame(
-        param.str.findall(r"[0-9a-z\.-]+=([0-9a-z\.-]+)").to_list(),
-    )
+        param.str.findall(r"[0-9a-z\.-]+=([0-9a-z\.-]+)").to_list(), )
 
     df = si_convert(df, re.findall(r"([0-9a-z\.-]+)=[0-9a-z\.-]+", param[0]))
     df = df.astype(float)
@@ -162,6 +160,11 @@ if __name__ == '__main__':
         PLOT = args.pop(0)
         INPUT = args.pop(0)
         kwargs = args
+
+    if PLOT not in ' '.join(os.listdir(FUNC_DIR)):
+        print(f'ERROR: {PLOT} is not a valid function', file=sys.stderr)
+    if not os.path.isfile(INPUT):
+        print(f'ERROR: {INPUT} does not exist', file=sys.stderr)
 
     if SUMMARY:
         df = ingest_summary(INPUT)
