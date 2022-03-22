@@ -2,10 +2,11 @@
 # Intelligent MicroSystems Lab
 
 from plot_functions import replot
+import sys
 
 
 def usage():
-    print('''gmid INPUT [kwargs]
+    print(f'''{sys.argv[0]} -s gmid INPUT [kwargs]
     REQUIRES SUMMARY INGEST
     gmid=str        Change gm/Id variable name (default: 'gm/Id')
     vgs=str         Change Vgs variable name (default: 'Vgs')

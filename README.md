@@ -23,7 +23,7 @@ invoke the main script as follows:
 ./cadence_plot.py [OPTIONS] PLOT INPUT [kwargs]
     -h  --help      Display this message
     -v  --verbose   Enable verbose output
-    -s  --summary  Choose filetype (default: `svg`)
+    -s  --summary   Feed in summary data instead of a waveform
 
     PLOT is the plot you wish to create, defined in `plot_functions.py`:
     gmid
@@ -46,6 +46,55 @@ quotes or just the value, e.g.:
 ./cadence_plot.py replot 'data.csv' 'xlabel=Time [s]'
 OR
 ./cadence_plot.py replot 'data.csv' xlabel='Time [s]'
+```
+
+### Replot
+
+The most versatile of the plotting functions is `replot`, which accepts either a
+waveform **or** summary data and plots arbitrary axes.  `replot` supports
+several Seaborn plot styles, including lineplots, scatterplots, histograms, kde
+plots, and even some combinations (like histograms with kde, invoked with any
+string that contains both `hist` _and_ `kde`).  Most of the Seaborn settings are
+exposed with the kwargs listed below:
+
+```
+./cadence_plot.py replot [-s] INPUT [kwargs]
+
+Data
+    x=str                       Change x (default: first column)
+    y=str                       Change y (default: second column)
+    hue=str         h=str       Specify hue (WARNING default: None)
+    style=str       s=str       Specify style (default: None)
+    size=str                    Specify size (default: None)
+    xscale=float    xs=float    Rescale x axis (default: 1)
+    yscale=float    ys=float    Rescale y axis (default: 1)
+    hscale=float    hs=float    Rescale hue (default: 1)
+    sscale=float    ss=float    Rescale style (default: 1)
+Figure
+    figsize=tuple   fs=tuple    Change figsize (default: '6,3')
+    xlabel=str      xl=str      Change x axis label (default: x)
+    ylabel=str      yl=str      Change y axis label (default: y)
+    ltitle=str      lt=str      Change legend title (default: automatic)
+    axes=str        ax=str      Change axes style (default: 'whitegrid')
+    context=str     cx=str      Scale plot elements (default: 'notebook')
+    logx=bool       lx=bool     Enable/disable log for x-axis (default: False)
+    logy=bool       ly=bool     Enable/disable log for y-axis (default: False)
+    bbox=bool       bb=bool     Enable/disable bbox for legend (default: True)
+    xlim=tuple                  Change xlim (default: full range)
+    ylim=tuple                  Change ylim (default: full range)
+Drawing
+    width=float     w=float     Change marker or line width (default: Depends)
+    alpha=float     a=float     Change alpha (default: 0.5)
+    palette=str     c=str       Palette, accepts cubehelix (default: 'crest')
+    ptype=str       pt=str      Change the plot type (default: 'line')
+    ci=float                    Change confidence interval size (default: 95)
+    stat=str                    Change stat/estimator (default: Depends)
+    bins=int                    Change number of bins/levels (default: 10)
+    fill=bool                   Enable/disable fill (default: Depends)
+    multiple=str                Change multiple behavior (default: 'layer')
+File
+    filetype=str    ft=str      Change filetype (default: 'svg')
+    filename=str    fn=str      Custom filename
 ```
 
 ##  Writing Additional Plot Functions

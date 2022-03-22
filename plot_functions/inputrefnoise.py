@@ -4,10 +4,11 @@
 from plot_functions import replot
 import pandas as pd
 import numpy as np
+import sys
 
 
 def usage():
-    print('''inputrefnoise INPUT [kwargs]
+    print(f'''{sys.argv[0]} inputrefnoise INPUT [kwargs]
     fs=float        Set sample rate in Hz (default: 50e6)
     Ts=float        Set sample period in s, overrides fs (default: 1/fs)
     delay=float     Set delay before first sample (default: 0)

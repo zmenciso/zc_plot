@@ -6,10 +6,11 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 import seaborn as sns
 import re
+import sys
 
 
 def usage():
-    print('replot [-s] INPUT [kwargs]')
+    print(f'{sys.argv[0]} replot [-s] INPUT [kwargs]')
     print('''
 Data
     x=str                       Change x (default: first column)

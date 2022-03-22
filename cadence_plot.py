@@ -94,7 +94,10 @@ def si_convert(df, columns):
         repl = np.unique(df[col].str.extract(r'([a-zA-Z])'))
 
         for item in repl:
-            df[col] = df[col].str.replace(item, SI[item], regex=False, case=True)
+            df[col] = df[col].str.replace(item,
+                                          SI[item],
+                                          regex=False,
+                                          case=True)
 
     df.columns = columns
 
