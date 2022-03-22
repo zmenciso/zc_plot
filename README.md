@@ -3,7 +3,7 @@
 Zephan M. Enciso  
 Intelligent MicroSystems Lab  
 
-![Example](./comp.svg)
+![Example](./gm-Id_2022-03-22T15:30:04.svg)
 
 ##  Dependencies
 
