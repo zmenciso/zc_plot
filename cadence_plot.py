@@ -41,6 +41,7 @@ PLOT = None
 INPUT = None
 VERBOSE = False
 SUMMARY = False
+RAW = False
 FILETYPE = 'svg'
 
 # Functions
@@ -51,6 +52,7 @@ def usage(exitcode):
     -h  --help      Display this message
     -v  --verbose   Enable verbose output
     -s  --summary   Feed in summary data instead of a waveform
+    -r  --raw       Feed in a raw .csv file
 
 PLOT is the plot you wish to create, defined in `plot_functions.py`:''')
 
@@ -67,9 +69,7 @@ If no INPUT and no kwargs are given, prints the usage for the specified PLOT.'''
 
 
 def ingest_wave(filename):
-    if os.path.splitext(filename)[-1] != '.csv':
-        print('ERROR: Input file must be .csv', file=sys.stderr)
-        sys.exit(3)
+    check_filetype(filename)
 
     df_in = pd.read_csv(filename)
     df = pd.DataFrame()
@@ -104,10 +104,14 @@ def si_convert(df, columns):
     return df
 
 
-def ingest_summary(filename):
+def check_filetype(filename):
     if os.path.splitext(filename)[-1] != '.csv':
         print('ERROR: Input file must be .csv', file=sys.stderr)
         sys.exit(3)
+
+
+def ingest_summary(filename):
+    check_filetype(filename)
 
     df_in = pd.read_csv(filename)
     param = df_in.loc[df_in["Point"].str.contains("Parameters"), "Point"]
@@ -143,6 +147,8 @@ if __name__ == '__main__':
             VERBOSE = True
         elif args[0] == '-s' or args[0] == '--summary':
             SUMMARY = True
+        elif args[0] == '-r' or args[0] == '--raw':
+            RAW = True
         else:
             usage(1)
 
@@ -171,6 +177,9 @@ if __name__ == '__main__':
 
     if SUMMARY:
         df = ingest_summary(INPUT)
+    elif RAW:
+        check_filetype(INPUT)
+        df = pd.read_csv(INPUT)
     else:
         df = ingest_wave(INPUT)
 
