@@ -125,7 +125,8 @@ def plot(df, kwargs):
             param[key] = value
 
     # Fix data types
-    param['figsize'] = tuple(map(float, param['figsize'].strip('()').split(',')))
+    param['figsize'] = tuple(
+        map(float, param['figsize'].strip('()').split(',')))
     param['alpha'] = float(param['alpha'])
     param['width'] = float(param['width']) if param['width'] else None
     param['ci'] = float(param['ci'])
@@ -198,28 +199,43 @@ def plot(df, kwargs):
                              s=param['width'] if param['width'] else 16,
                              palette=cmap)
 
+    elif 'joint' in param['ptype']:
+        ax = sns.jointplot(data=df,
+                           x=param['x'],
+                           y=param['y'],
+                           kind=re.sub('joint', '', param['ptype']),
+                           height=param['figsize'][0],
+                           hue=param['hue'],
+                           palette=cmap)
+
     elif 'hist' in param['ptype']:
-        ax = sns.kdeplot(data=df,
-                         x=param['x'],
-                         y=param['y'] if param['y'] != 'None' else None,
-                         fill=not param['fill'],
-                         stat=param['stat'] if param['stat'] else 'count',
-                         bins=param['bins'],
-                         hue=param['hue'],
-                         kde=('kde' in param['ptype']),
-                         multiple=param['multiple'],
-                         palette=cmap)
+        ax = sns.histplot(
+            data=df,
+            x=param['x'],
+            y=param['y'] if param['y'] != 'None' else None,
+            fill=not param['fill'],
+            stat=param['stat'] if param['stat'] else 'count',
+            bins=param['bins'],
+            hue=param['hue'],
+            kde=('kde' in param['ptype']),
+            multiple=param['multiple'],
+            cbar=True if param['y'] != 'None' else False,
+            cbar_kws=dict(shrink=.75) if param['y'] != 'None' else None,
+            palette=cmap)
 
     elif 'kde' in param['ptype']:
-        ax = sns.kdeplot(data=df,
-                         x=param['x'],
-                         y=param['y'] if param['y'] != 'None' else None,
-                         fill=param['fill'],
-                         levels=param['bins'],
-                         hue=param['hue'],
-                         lw=param['width'] if param['width'] else 2,
-                         multiple=param['multiple'],
-                         palette=cmap)
+        ax = sns.kdeplot(
+            data=df,
+            x=param['x'],
+            y=param['y'] if param['y'] != 'None' else None,
+            fill=param['fill'],
+            levels=param['bins'],
+            hue=param['hue'],
+            lw=param['width'] if param['width'] else 2,
+            multiple=param['multiple'],
+            cbar=True if param['y'] != 'None' else False,
+            cbar_kws=dict(shrink=.75) if param['y'] != 'None' else None,
+            palette=cmap)
 
     plt.xlabel(param['xlabel'])
     plt.ylabel(param['ylabel'])
