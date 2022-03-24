@@ -4,6 +4,7 @@ Zephan M. Enciso
 Intelligent MicroSystems Lab  
 
 ![Example](./gm-Id_2022-03-22T15:30:04.svg)
+
 Plot generated from one simple command!
 
 ##  Dependencies
@@ -57,8 +58,10 @@ The most versatile of the plotting functions is `replot`, which accepts either a
 waveform **or** summary data and plots arbitrary axes.  `replot` supports
 several Seaborn plot styles, including lineplots, scatterplots, histograms, kde
 plots, and even some combinations (like histograms with kde, invoked with any
-string that contains both `hist` _and_ `kde`).  Most of the Seaborn settings are
-exposed with the kwargs listed below:
+string that contains both `hist` _and_ `kde`).  Jointplots are also supported;
+you can include the type of the jointplot in `ptype` (e.g. `jointkde`,
+`hextjoint`). Most of the Seaborn settings are exposed with the kwargs listed
+below:
 
 ```
 ./cadence_plot.py replot [-s] INPUT [kwargs]
