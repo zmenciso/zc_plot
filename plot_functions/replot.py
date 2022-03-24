@@ -31,7 +31,7 @@ Figure
     context=str     cx=str      Scale plot elements (default: 'notebook')
     logx=bool       lx=bool     Enable/disable log for x-axis (default: False)
     logy=bool       ly=bool     Enable/disable log for y-axis (default: False)
-    bbox=bool       bb=bool     Enable/disable bbox for legend (default: True)
+    bbox=str        bb=str      Bbox pos (right/center/none, default: 'right')
     xlim=tuple                  Change xlim (default: full range)
     ylim=tuple                  Change ylim (default: full range)
 Drawing
@@ -81,8 +81,6 @@ def key_expander(key):
 
 
 def plot(df, kwargs):
-    # TODO: Fix sig figs on legend!
-
     param = {
         'figsize': '6,3',
         'alpha': 0.8,
@@ -132,13 +130,13 @@ def plot(df, kwargs):
     param['ci'] = float(param['ci'])
     param['logy'] = bool(param['logy'])
     param['logx'] = bool(param['logx'])
-    param['bbox'] = bool(param['bbox'])
     param['fill'] = bool(param['fill'])
     param['bins'] = int(param['bins'])
     param['xscale'] = float(param['xscale'])
     param['yscale'] = float(param['yscale'])
     param['hscale'] = float(param['hscale'])
     param['sscale'] = float(param['sscale'])
+    param['ptype'] = param['ptype'].lower()
 
     # Set labels
     if not param['ylabel']:
@@ -252,14 +250,23 @@ def plot(df, kwargs):
     if param['logy']:
         ax.set_yscale('log')
 
-    if param['bbox'] and (param['hue'] or param['style']):
+    if param['bbox'] != 'none' and (param['hue'] or param['style']):
         handles, labels = plt.gca().get_legend_handles_labels()
-        plt.legend(handles,
-                   labels,
-                   loc='upper left',
-                   bbox_to_anchor=(1.02, 1),
-                   title=param['ltitle'],
-                   borderaxespad=0)
+        if param['bbox'] == 'center':
+            plt.legend(handles,
+                       labels,
+                       loc='upper center',
+                       bbox_to_anchor=(.5, 1.25),
+                       ncol=len(handles),
+                       title=param['ltitle'],
+                       borderaxespad=0)
+        else:
+            plt.legend(handles,
+                       labels,
+                       loc='upper left',
+                       bbox_to_anchor=(1.02, 1),
+                       title=param['ltitle'],
+                       borderaxespad=0)
 
     plt.tight_layout()
     if param['filename']:
