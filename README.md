@@ -26,8 +26,10 @@ invoke the main script as follows:
 ```
 ./cadence_plot.py [OPTIONS] PLOT INPUT [kwargs]
     -h  --help      Display this message
+    -k  [FILE]      Additional external kwargs (feed in from FILE)
     -v  --verbose   Enable verbose output
     -s  --summary   Feed in summary data instead of a waveform
+    -r  --raw       Feed in a raw .csv file
 
     PLOT is the plot you wish to create, defined in `plot_functions.py`:
     gmid
@@ -39,9 +41,10 @@ INPUT is the input data file, e.g. `data/my_data.csv`.
 If no input and kwargs are given, prints the usage for the given PLOT.
 ```
 
-This script can also do plotting with Maestro summary data instead of a
-waveform.  In this case, use the `-s` or `--summary` switch and ensure that the
-selected plotting function supports it.
+This script can also do plotting with **other forms of data** instead of a
+waveform, so long as the selected plotting function supports it. For Maestro
+summary data, use the `-s` or `--summary` switch.  For a raw CSV file, use the
+`-r` or `--raw` switch.
 
 To provide a multi-word kwarg, either enclose the entire kwarg definition in
 quotes or just the value, e.g.:
@@ -50,6 +53,24 @@ quotes or just the value, e.g.:
 ./cadence_plot.py replot 'data.csv' 'xlabel=Time [s]'
 OR
 ./cadence_plot.py replot 'data.csv' xlabel='Time [s]'
+```
+
+Additionally, kwargs can be specified in an **external file**, specified after
+the `-k` or `--kwargs` switch.  This file must be line-delimited, and statements
+starting with `#` are treated as comments.  It is **not** necessary to enclose
+external multi-word kwargs in quotes. For example, the following file is valid
+and might be invoked with `./cadence_plot.py -k settings.txt PLOT INPUT`.
+
+```
+# settings.txt
+h	= vdiff
+xs	= 1e9
+ys	= 1e3
+hs	= 1e3
+xlim= 7,12
+xl	= Time [ns]
+yl	= Output Voltage [mV]
+lt	= Vdiff [mV]
 ```
 
 ### Replot

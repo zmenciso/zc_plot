@@ -39,10 +39,10 @@ for entry in os.scandir(FUNC_DIR):
 
 PLOT = None
 INPUT = None
+KWARGS = None
 VERBOSE = False
 SUMMARY = False
 RAW = False
-FILETYPE = 'svg'
 
 # Functions
 
@@ -50,6 +50,7 @@ FILETYPE = 'svg'
 def usage(exitcode):
     print(f'''{sys.argv[0]} [OPTIONS] PLOT INPUT [kwargs]
     -h  --help      Display this message
+    -k  [FILE]      Additional external kwargs (feed in from FILE)
     -v  --verbose   Enable verbose output
     -s  --summary   Feed in summary data instead of a waveform
     -r  --raw       Feed in a raw .csv file
@@ -149,6 +150,8 @@ if __name__ == '__main__':
             SUMMARY = True
         elif args[0] == '-r' or args[0] == '--raw':
             RAW = True
+        elif args[0] == '-k' or args[0] == '--kwargs':
+            KWARGS = args.pop(1)
         else:
             usage(1)
 
@@ -158,7 +161,7 @@ if __name__ == '__main__':
     if len(args) < 1:
         usage(2)
 
-    # Specific PLOT usage
+    # PLOT usage function
     elif len(args) == 1:
         PLOT = args.pop(0)
         eval(f'{PLOT}.usage()')
@@ -172,8 +175,10 @@ if __name__ == '__main__':
 
     if PLOT not in ' '.join(os.listdir(FUNC_DIR)):
         print(f'ERROR: {PLOT} is not a valid function', file=sys.stderr)
+        sys.exit(101)
     if not os.path.isfile(INPUT):
         print(f'ERROR: {INPUT} does not exist', file=sys.stderr)
+        sys.exit(102)
 
     if SUMMARY:
         df = ingest_summary(INPUT)
@@ -182,6 +187,13 @@ if __name__ == '__main__':
         df = pd.read_csv(INPUT)
     else:
         df = ingest_wave(INPUT)
+
+    # Concatenate kwargs with external kwargs
+    if KWARGS:
+        kwargs += [
+            re.sub(r'\s+=\s+', '=', line.strip()) for line in open(KWARGS)
+            if not line.strip().startswith('#')
+        ]
 
     eval(f'{PLOT}.plot(df, kwargs)')
     sys.exit(0)
