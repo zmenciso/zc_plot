@@ -66,23 +66,20 @@ and might be invoked with `./cadence_plot.py -k settings.txt PLOT INPUT`.
 h	= vdiff
 xs	= 1e9
 ys	= 1e3
-hs	= 1e3
-xlim= 7,12
 xl	= Time [ns]
 yl	= Output Voltage [mV]
-lt	= Vdiff [mV]
 ```
 
 ### Replot
 
 The most versatile of the plotting functions is `replot`, which accepts either a
-waveform **or** summary data and plots arbitrary axes.  `replot` supports
-several Seaborn plot styles, including lineplots, scatterplots, histograms, kde
-plots, and even some combinations (like histograms with kde, invoked with any
-string that contains both `hist` _and_ `kde`).  Jointplots are also supported;
-you can include the type of the jointplot in `ptype` (e.g. `jointkde`,
-`hextjoint`). Most of the Seaborn settings are exposed with the kwargs listed
-below:
+waveform **or** summary data **or** a raw CSV and plots arbitrary axes.
+`replot` supports several Seaborn plot styles, including lineplots,
+scatterplots, histograms, kde plots, and even some combinations (like histograms
+with kde, invoked with any string that contains both `hist` _and_ `kde`).
+Jointplots are also supported; you can include the type of the jointplot in
+`ptype` (e.g. `jointkde`, `hexjoint`). Most of the Seaborn settings are exposed
+with the kwargs listed below:
 
 ```
 ./cadence_plot.py replot [-s] INPUT [kwargs]
