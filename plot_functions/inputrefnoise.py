@@ -55,5 +55,5 @@ def plot(df, kwargs):
     pd_sampled = pd.DataFrame(d_fill.T.values,
                               columns=['x', param['y']]).iloc[1:, :]
 
-    kwargs += [f'y={param["y"]}', 'pt=scatter']
+    kwargs += [f'y={param["y"]}']
     replot.plot(pd_sampled, kwargs)

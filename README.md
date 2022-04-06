@@ -58,8 +58,9 @@ OR
 Additionally, kwargs can be specified in an **external file**, specified after
 the `-k` or `--kwargs` switch.  This file must be line-delimited, and statements
 starting with `#` are treated as comments.  It is **not** necessary to enclose
-external multi-word kwargs in quotes. For example, the following file is valid
-and might be invoked with `./cadence_plot.py -k settings.txt PLOT INPUT`.
+external multi-word kwargs in quotes, and CLI kwargs will always **overwrite**
+external kwargs. As an example, the following file is valid and might be invoked
+with `./cadence_plot.py -k settings.txt PLOT INPUT`.
 
 ```
 # settings.txt
@@ -148,7 +149,7 @@ from plot_functions import replot
 df_new = # Some DataFrame transformations here
 kwargs += ['hue=my_new_metric', 'ptype=scatter']
 
-plot(df_new, kwargs)
+replot.plot(df_new, kwargs)
 ```
 
 It is **recommended**, though not required, to expect each additional argument

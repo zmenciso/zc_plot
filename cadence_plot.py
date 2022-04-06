@@ -69,6 +69,11 @@ If no INPUT and no kwargs are given, prints the usage for the specified PLOT.'''
     sys.exit(exitcode)
 
 
+def v_print(string, file):
+    if VERBOSE:
+        print(string, file=file)
+
+
 def ingest_wave(filename):
     check_filetype(filename)
 
@@ -190,10 +195,10 @@ if __name__ == '__main__':
 
     # Concatenate kwargs with external kwargs
     if KWARGS:
-        kwargs += [
+        kwargs = [
             re.sub(r'\s+=\s+', '=', line.strip()) for line in open(KWARGS)
             if not line.strip().startswith('#')
-        ]
+        ] + kwargs
 
     eval(f'{PLOT}.plot(df, kwargs)')
     sys.exit(0)
