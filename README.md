@@ -3,7 +3,7 @@
 Zephan M. Enciso  
 Intelligent MicroSystems Lab  
 
-![Example](./gm-Id_2022-03-22T15:30:04.svg)
+![Example](./banner.svg)
 
 Plot generated from one simple command!
 
