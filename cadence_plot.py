@@ -82,7 +82,10 @@ def ingest_wave(filename):
 
     x = df_in.iloc[:, 0]
     for label, content in df_in.iloc[:, 1::2].iteritems():
-        param = re.findall(r".+ \((.*)\) .+", label)[0].split(",")
+        param = list()
+        if attr := re.findall(r".+ \((.*)\) .+", label):
+            param = attr[0].split(",")
+
         d_fill = pd.DataFrame(np.array(
             [x.astype(float), content.astype(float)]).T,
                               columns=['x', label.split()[0]])
