@@ -1,6 +1,9 @@
 # Zephan M. Enciso
 # Intelligent MicroSystems Lab
 
+# This function is painfully slow because the sampling logic is terrible
+# TODO: Sample better
+
 from plot_functions import replot
 import pandas as pd
 import numpy as np
