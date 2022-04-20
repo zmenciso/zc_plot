@@ -24,7 +24,8 @@ SI = {
     'G': 'e9',
     'T': 'e12',
     'P': 'e15',
-    'E': 'e18'
+    'E': 'e18',
+    'nan': ''
 }
 
 PROJ_DIR = os.path.dirname(os.path.realpath(__file__))
@@ -100,7 +101,7 @@ def ingest_wave(filename):
 
 def si_convert(df, columns):
     for col in df:
-        repl = np.unique(df[col].str.extract(r'([a-zA-Z])'))
+        repl = np.unique(df[col].str.extract(r'([a-zA-Z])').astype(str))
 
         for item in repl:
             df[col] = df[col].str.replace(item,
@@ -126,7 +127,7 @@ def ingest_summary(filename):
     param = df_in.loc[df_in["Point"].str.contains("Parameters"), "Point"]
 
     df = pd.DataFrame(
-        param.str.findall(r"[0-9a-z\.-]+=([0-9a-z\.-]+)").to_list(), )
+        param.str.findall(r"[0-9a-z\.-]+=([0-9a-z\.-]*)").to_list(), )
 
     df = si_convert(df, re.findall(r"([0-9a-z\.-]+)=[0-9a-z\.-]+", param[0]))
     df = df.astype(float)
