@@ -120,7 +120,7 @@ def log(kwargs, df):
         ingest = 'Wave'
 
     fout.write('cadence_plot log file\n')
-    fout.write(f'Executed at {time}\n')
+    fout.write(f'Executed on {time.split("T")[0]} at {time.split("T")[1]}\n')
     fout.write('-' * 80 + '\n\n')
 
     fout.write(f'Input file: {INPUT}\n')
@@ -155,7 +155,7 @@ def export_kwargs(kwargs, filename):
         return
 
     fout.write('# cadence_plot kwargs file\n')
-    fout.write(f'# Automatically generated at {time}\n')
+    fout.write(f'# Automatically generated on {time.split("T")[0]} at {time.split("T")[1]}\n')
     fout.write('#' * 80 + '\n\n')
 
     for kwarg in kwargs:
