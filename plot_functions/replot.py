@@ -1,7 +1,6 @@
 # Zephan M. Enciso
 # Intelligent MicroSystems Lab
 
-from datetime import datetime
 # from plot_functions import test
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -119,8 +118,7 @@ def plot(df, kwargs):
     for arg in kwargs:
         key, value = arg.split('=')
         key = key_expander(key)
-        if key in param:
-            param[key] = value
+        param[key] = value
 
     # Fix data types
     param['figsize'] = tuple(
@@ -258,14 +256,16 @@ def plot(df, kwargs):
                        loc='upper center',
                        bbox_to_anchor=(.5, 1.25),
                        ncol=len(handles),
-                       title=param['ltitle'],
+                       title=param['ltitle']
+                       if param['ltitle'].lower() != 'none' else None,
                        borderaxespad=0)
         else:
             plt.legend(handles,
                        labels,
                        loc='upper left',
                        bbox_to_anchor=(1.02, 1),
-                       title=param['ltitle'],
+                       title=param['ltitle']
+                       if param['ltitle'].lower() != 'none' else None,
                        borderaxespad=0)
 
     plt.tight_layout()
@@ -273,6 +273,5 @@ def plot(df, kwargs):
         plt.savefig(f'{param["filename"]}.{param["filetype"]}')
     else:
         param['y'] = re.sub('/', '-', param['y'])
-        plt.savefig(
-            f'{param["y"]}_{datetime.now().strftime("%Y-%m-%dT%H:%M:%S")}.{param["filetype"]}'
-        )
+        plt.savefig(f'./plots/{param["y"]}_' + param['time'] +
+                    f'.{param["filetype"]}')
