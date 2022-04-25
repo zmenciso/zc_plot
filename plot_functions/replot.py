@@ -2,10 +2,13 @@
 # Intelligent MicroSystems Lab
 
 # from plot_functions import test
+from cadence_plot import query
+
 import matplotlib.pyplot as plt
 import seaborn as sns
 import re
 import sys
+import os
 
 
 def usage():
@@ -270,7 +273,11 @@ def plot(df, kwargs):
 
     plt.tight_layout()
     if param['filename']:
-        plt.savefig(f'{param["filename"]}.{param["filetype"]}')
+        allow = True
+        if os.isfile(param['filename']):
+            allow = query(f'Overwrite {param["filename"]}?', 'yes')
+        if allow:
+            plt.savefig(f'{param["filename"]}.{param["filetype"]}')
     else:
         param['y'] = re.sub('/', '-', param['y'])
         plt.savefig(f'./plots/{param["y"]}_' + param['time'] +
