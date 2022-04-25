@@ -98,7 +98,7 @@ def query(prompt=None, default=None):
             return valid[response.lower()]
 
 
-def log(kwargs):
+def log(kwargs, df):
     time = f'{datetime.now().strftime("%Y-%m-%dT%H:%M:%S")}'
     if LOG:
         filename = LOG
@@ -108,9 +108,16 @@ def log(kwargs):
     try:
         fout = open(filename, 'a')
     except Exception as e:
-        print(f'ERROR: Could not open logfile {filename} for writing {e}',
+        print(f'ERROR: Could not open logfile {filename} for writing ({e})',
               file=sys.stderr)
         return time
+
+    if SUMMARY:
+        ingest = 'Summary'
+    elif RAW:
+        ingest = 'Raw'
+    else:
+        ingest = 'Wave'
 
     fout.write('cadence_plot log file\n')
     fout.write(f'Executed at {time}\n')
@@ -120,15 +127,18 @@ def log(kwargs):
     fout.write(f'Plot function: {PLOT}\n')
     fout.write(f'''Arguments:
     Verbose: {VERBOSE}
-    Summary input: {SUMMARY}
-    Raw input: {RAW}
+    Data ingest: {ingest}
+    Export file: {EXPORT}
     External kwargs file: {KWARGS}\n''')
 
     fout.write('kwargs:\n')
     for kwarg in kwargs:
-        fout.write(' ' * 8 + kwarg + '\n')
+        fout.write(' ' * 4 + kwarg + '\n')
 
-    fout.write('\n\n')
+    # Dump DataFrame to fout
+    fout.write('\n')
+    print(df, file=fout)
+
     fout.close()
     return time
 
@@ -138,9 +148,9 @@ def export_kwargs(kwargs, filename):
     time = f'{datetime.now().strftime("%Y-%m-%dT%H:%M:%S")}'
 
     try:
-        fout = open(filename, 'a')
+        fout = open(filename, 'w')
     except Exception as e:
-        print(f'ERROR: Could not open export file {filename} for writing {e}',
+        print(f'ERROR: Could not open export file {filename} for writing ({e})',
               file=sys.stderr)
         return
 
@@ -150,9 +160,9 @@ def export_kwargs(kwargs, filename):
 
     for kwarg in kwargs:
         try:
-            fout.write(kwarg.split('=')[0] + '=' + kwarg.spit('=')[1] + '\n')
-        except Exception:
-            print('ERROR: Misformed kwarg {kwarg}', file=sys.stderr)
+            fout.write(kwarg.split('=')[0] + '=' + kwarg.split('=')[1] + '\n')
+        except Exception as e:
+            print(f'ERROR: Misformed kwarg {kwarg} ({e})', file=sys.stderr)
 
     fout.close()
     return
@@ -311,11 +321,11 @@ if __name__ == '__main__':
     if KWARGS:
         kwargs = [
             re.sub(r'\s+=\s+', '=', line.strip())
-            for line in open(KWARGS) if not line.strip().startswith('#')
+            for line in open(KWARGS) if line.strip() and not line.strip().startswith('#')
         ] + kwargs
 
     # Log and plot!
-    time = log(kwargs)
-    kwargs = f'time={time}' + kwargs
+    time = log(kwargs, df)
+    kwargs = [f'time={time}'] + kwargs
     eval(f'{PLOT}.plot(df, kwargs)')
     sys.exit(0)
