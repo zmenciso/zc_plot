@@ -126,6 +126,16 @@ File
     filename=str    fn=str      Custom filename (default: automatic)
 ```
 
+### Help! It doesn't work!
+
+Yeah, well, it's pretty jenky software, so do temper your expectations.  I
+recommend checking the logfile to make sure you have set the args and kwargs
+correctly and chosen the right data ingest type.  The logfile also includes a
+representation of the internal DataFrame, which you can check for oddities.
+
+You also post an issue on the GitHub page.  If you do so, please include the
+**input file**, **log file**, and any **error messages**.
+
 ##  Writing Additional Plot Functions
 
 Each new plot function should be defined in a different file in the
