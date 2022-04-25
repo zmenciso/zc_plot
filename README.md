@@ -32,7 +32,7 @@ invoke the main script as follows:
     -s  --summary   Feed in summary data instead of a waveform
     -r  --raw       Feed in a raw .csv file
 
-    PLOT is the plot you wish to create, defined in `plot_functions.py`:
+PLOT is the plot you wish to create, defined in `plot_functions.py`:
     gmid
     inputrefnoise
     replot
@@ -50,10 +50,14 @@ summary data, use the `-s` or `--summary` switch.  For a raw CSV file, use the
 To provide a multi-word kwarg, either enclose the entire kwarg definition in
 quotes or just the value, e.g.:
 
+```bash
+./cadence_plot.py replot data.csv 'xlabel=Time [s]'
 ```
-./cadence_plot.py replot 'data.csv' 'xlabel=Time [s]'
-OR
-./cadence_plot.py replot 'data.csv' xlabel='Time [s]'
+
+**OR**
+
+```bash
+./cadence_plot.py replot data.csv xlabel='Time [s]'
 ```
 
 Additionally, kwargs can be loaded from an **external file**, specified after
@@ -186,7 +190,6 @@ param = dict(
 
 for arg in kwargs:
     key, value = arg.split('=')
-    if key in param:
-        param[key] = value
+    param[key] = value
 
 ```
