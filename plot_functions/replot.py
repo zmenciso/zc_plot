@@ -273,11 +273,10 @@ def plot(df, kwargs):
 
     plt.tight_layout()
     if param['filename']:
-        allow = True
-        if os.isfile(param['filename']):
-            allow = query(f'Overwrite {param["filename"]}?', 'yes')
+        filename = param['filename'] + '.' + param['filetype']
+        allow = query(f'Overwrite {filename}?', 'yes') if os.path.isfile(filename) else True
         if allow:
-            plt.savefig(f'{param["filename"]}.{param["filetype"]}')
+            plt.savefig(filename)
     else:
         param['y'] = re.sub('/', '-', param['y'])
         plt.savefig(f'./plots/{param["y"]}_' + param['time'] +
