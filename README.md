@@ -19,33 +19,30 @@ These utilities have been tested with the following software versions:
 
 ##  Usage
 
-From the waveform viewer, export your data as a `.csv` file.  Make sure to
+This script supports plotting **waveforms** (or groups of waveforms), **Maestro
+summary data** (with the `-s` or `--summary` switch), or any **raw CSV file**
+(with the `-r` or `--raw` switch). If plotting waveforms, select all the waves
+in the waveform viewer and export your data as a `.csv` file.  Make sure to
 enable the "Interpolate" option so each waveform has the same time axis.  Then,
 invoke the main script as follows:
 
 ```
-./cadence_plot.py [OPTIONS] PLOT INPUT [kwargs]
-    -h  --help      Display this message
-    -k  [FILE]      Additional external kwargs (feed in from FILE)
-    -x  [FILE]      Exports the current kwargs to FILE
-    -v  --verbose   Enable verbose output
-    -s  --summary   Feed in summary data instead of a waveform
-    -r  --raw       Feed in a raw .csv file
+./cadence_plot.py [options] PLOT INPUT [kwargs]
+    -h  --help      [PLOT]  Display this message or PLOT usage
+    -k  --kwargs    [FILE]  Load additional external kwargs from FILE
+    -x  --export    [FILE]  Exports the current kwargs to FILE
+    -v  --verbose           Enable verbose output
+    -s  --summary           Feed in summary data instead of a waveform
+    -r  --raw               Feed in a raw .csv file instead of a waveform
 
-PLOT is the plot you wish to create, defined in `plot_functions.py`:
-    gmid
+List of available PLOTs:
     inputrefnoise
     replot
-    etc...
+    gmid
+    ...
 
-INPUT is the input data file, e.g. `data/my_data.csv`.
-If no input and kwargs are given, prints the usage for the given PLOT.
+INPUT must be a valid CSV, e.g. `data/my_data.csv`.
 ```
-
-This script can also do plotting with **other forms of data** instead of a
-waveform, so long as the selected plotting function supports it. For Maestro
-summary data, use the `-s` or `--summary` switch.  For a raw CSV file, use the
-`-r` or `--raw` switch.
 
 To provide a multi-word kwarg, either enclose the entire kwarg definition in
 quotes or just the value, e.g.:
@@ -61,11 +58,12 @@ quotes or just the value, e.g.:
 ```
 
 Additionally, kwargs can be loaded from an **external file**, specified after
-the `-k` or `--kwargs` switch.  This file must be line-delimited, and statements
-starting with `#` are treated as comments.  It is **not** necessary to enclose
-external multi-word kwargs in quotes, and CLI kwargs will always be **appended
-after the external kwargs**. As an example, the following file is valid and
-might be invoked with `./cadence_plot.py -k settings.txt PLOT INPUT`.
+the `-k` or `--kwargs` switch.  This file must be **line-delimited**, and lines
+starting with `#` will be treated as comments.  When using an external file, it
+is **not** necessary to enclose external multi-word kwargs in quotes, and CLI
+kwargs will always be **appended after the external kwargs**. As an example, the
+following file is valid and might be invoked with `./cadence_plot.py -k
+settings.txt PLOT INPUT`.
 
 ```
 # settings.txt
@@ -76,8 +74,8 @@ xl	= Time [ns]
 yl	= Output Voltage [mV]
 ```
 
-The current kwargs in use can also be exported to a properly-formatted text
-file, specified after the `-x` or `--export` switch.  
+The kwargs that are currently in use can also be exported to a
+properly-formatted text file by using the `-x` or `--export` switch.  
 
 ### Replot
 
@@ -91,7 +89,7 @@ Jointplots are also supported; you can include the type of the jointplot in
 with the kwargs listed below:
 
 ```
-./cadence_plot.py replot [-s] INPUT [kwargs]
+./cadence_plot.py replot [options] INPUT [kwargs]
 
 Data
     x=str                       Change x (default: first column)
@@ -134,11 +132,13 @@ File
 
 Yeah, well, it's pretty jenky software, so do temper your expectations.  I
 recommend checking the logfile to make sure you have set the args and kwargs
-correctly and chosen the right data ingest type.  The logfile also includes a
+correctly and chosen the right data ingest type.  Remember that failing to
+specify additional plot dimensions (i.e. hue, size, and style) will cause your
+data to be flattened to two dimensions. The logfile also includes a
 representation of the internal DataFrame, which you can check for oddities.
 
-You also post an issue on the GitHub page.  If you do so, please include the
-**input file**, **log file**, and any **error messages**.
+You can also post an issue on the GitHub page.  If you do so, please include the
+**input file**, **log file**, and any **error messages** (printed to stderr).
 
 ##  Writing Additional Plot Functions
 

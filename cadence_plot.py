@@ -7,6 +7,7 @@ from datetime import datetime
 import sys
 import os
 import re
+import subprocess
 import pandas as pd
 import numpy as np
 
@@ -29,12 +30,19 @@ SI = {
     'nan': ''
 }
 
+CWD = os.getcwd()
 PROJ_DIR = os.path.dirname(os.path.realpath(__file__))
 FUNC_DIR = PROJ_DIR + '/plot_functions'
-CWD = os.getcwd()
+LOG_DIR = PROJ_DIR + '/logs'
 
-LOG_DIR = CWD + '/logs'
+try:
+    VERSION = subprocess.check_output(['git', 'rev-parse', '--short',
+                                       'HEAD']).decode('ascii').strip()
+except Exception:
+    VERSION = 'UNKNOWN'
 
+# Import all plot functions
+# TODO: Only import invoked function
 for entry in os.scandir(FUNC_DIR):
     if entry.is_file() and os.path.splitext(entry)[-1] == '.py':
         exec(
@@ -54,24 +62,21 @@ RAW = False
 
 
 def usage(exitcode):
-    print(f'''{sys.argv[0]} [OPTIONS] PLOT INPUT [kwargs]
-    -h  --help      Display this message
-    -k  [FILE]      Additional external kwargs (feed in from FILE)
-    -x  [FILE]      Exports the current kwargs to FILE
-    -v  --verbose   Enable verbose output
-    -s  --summary   Feed in summary data instead of a waveform
-    -r  --raw       Feed in a raw .csv file
+    print(f'''{sys.argv[0]} [options] PLOT INPUT [kwargs]
+    -h  --help      [PLOT]  Display this message or PLOT usage
+    -k  --kwargs    [FILE]  Load additional external kwargs from FILE
+    -x  --export    [FILE]  Exports the current kwargs to FILE
+    -v  --verbose           Enable verbose output
+    -s  --summary           Feed in summary data instead of a waveform
+    -r  --raw               Feed in a raw .csv file instead of a waveform
 
-PLOT is the plot you wish to create, defined in `plot_functions.py`:''')
+List of available PLOTs:''')
 
     for func in os.scandir(FUNC_DIR):
         if func.is_file() and os.path.splitext(entry)[-1] == '.py':
             print(f'    {os.path.splitext(os.path.basename(func))[0]}')
 
-    print('''
-INPUT is the input data file, e.g. `data/my_data.csv`.
-If no INPUT and no kwargs are given, prints the usage for the specified PLOT.'''
-          )
+    print('\nINPUT must be a valid CSV, e.g. `data/my_data.csv`.')
 
     sys.exit(exitcode)
 
@@ -119,15 +124,15 @@ def log(kwargs, df):
     else:
         ingest = 'Wave'
 
-    fout.write('cadence_plot log file\n')
+    fout.write(f'cadence_plot ver. {VERSION}\n')
     fout.write(f'Executed on {time.split("T")[0]} at {time.split("T")[1]}\n')
     fout.write('-' * 80 + '\n\n')
 
     fout.write(f'Input file: {INPUT}\n')
     fout.write(f'Plot function: {PLOT}\n')
     fout.write(f'''Arguments:
+    Data ingest type: {ingest}
     Verbose: {VERBOSE}
-    Data ingest: {ingest}
     Export file: {EXPORT}
     External kwargs file: {KWARGS}\n''')
 
@@ -144,18 +149,20 @@ def log(kwargs, df):
 
 
 def export_kwargs(kwargs, filename):
-    ''' TODO: Write this '''
     time = f'{datetime.now().strftime("%Y-%m-%dT%H:%M:%S")}'
 
     try:
         fout = open(filename, 'w')
     except Exception as e:
-        print(f'ERROR: Could not open export file {filename} for writing ({e})',
-              file=sys.stderr)
+        print(
+            f'ERROR: Could not open export file {filename} for writing ({e})',
+            file=sys.stderr)
         return
 
-    fout.write('# cadence_plot kwargs file\n')
-    fout.write(f'# Automatically generated on {time.split("T")[0]} at {time.split("T")[1]}\n')
+    fout.write(f'# cadence_plot ver. {VERSION}\n')
+    fout.write(
+        f'# Automatically generated on {time.split("T")[0]} at {time.split("T")[1]}\n'
+    )
     fout.write('#' * 80 + '\n\n')
 
     for kwarg in kwargs:
@@ -168,7 +175,7 @@ def export_kwargs(kwargs, filename):
     return
 
 
-def v_print(string, file):
+def v_print(string, file=sys.stdout):
     if VERBOSE:
         print(string, file=file)
 
@@ -245,9 +252,6 @@ def ingest_summary(filename):
 # Main execution
 
 if __name__ == '__main__':
-    # Parse command line options
-    args = sys.argv[1:]
-
     # Create default directories
     if not os.path.isdir(PROJ_DIR + '/plots'):
         allow = query('Default `plots` directory does not exist, create it?',
@@ -260,9 +264,17 @@ if __name__ == '__main__':
         if allow:
             os.mkdir(PROJ_DIR + '/logs')
 
+    # Parse command line options
+    args = sys.argv[1:]
+
     while len(args) and args[0].startswith('-'):
         if args[0] == '-h' or args[0] == '--help':
-            usage(0)
+            args.pop(0)
+            if args and args[0] in ' '.join(os.listdir(FUNC_DIR)):
+                eval(f'{args[0]}.usage()')
+                sys.exit(0)
+            else:
+                usage(0)
         elif args[0] == '-v' or args[0] == '--verbose':
             VERBOSE = True
         elif args[0] == '-s' or args[0] == '--summary':
@@ -276,21 +288,16 @@ if __name__ == '__main__':
         elif args[0] == '-l' or args[0] == '--log':
             LOG = args.pop(1)
         else:
+            print('ERROR: Not a valid option {args[0]}\n', file=sys.stderr)
             usage(1)
 
         args.pop(0)
 
-    # No arguments
-    if len(args) < 1:
+    # Missing arguments
+    if len(args) < 2:
+        print('ERROR: Not enough arguments\n', file=sys.stderr)
         usage(2)
 
-    # PLOT usage function
-    elif len(args) == 1:
-        PLOT = args.pop(0)
-        eval(f'{PLOT}.usage()')
-        sys.exit(0)
-
-    # Normal
     else:
         PLOT = args.pop(0)
         INPUT = args.pop(0)
@@ -320,8 +327,8 @@ if __name__ == '__main__':
     # Concatenate kwargs with external kwargs
     if KWARGS:
         kwargs = [
-            re.sub(r'\s+=\s+', '=', line.strip())
-            for line in open(KWARGS) if line.strip() and not line.strip().startswith('#')
+            re.sub(r'\s+=\s+', '=', line.strip()) for line in open(KWARGS)
+            if line.strip() and not line.strip().startswith('#')
         ] + kwargs
 
     # Log and plot!

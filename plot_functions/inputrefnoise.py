@@ -5,6 +5,7 @@
 # TODO: Sample better
 
 from plot_functions import replot
+import math
 import pandas as pd
 import numpy as np
 import sys
@@ -57,6 +58,8 @@ def plot(df, kwargs):
 
     pd_sampled = pd.DataFrame(d_fill.T.values,
                               columns=['x', param['y']]).iloc[1:, :]
+
+    # TODO: Fit Gaussian to the data
 
     kwargs = ['pt=scatter'] + kwargs + [f'y={param["y"]}']
     replot.plot(pd_sampled, kwargs)

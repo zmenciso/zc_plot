@@ -3,7 +3,6 @@
 
 # from plot_functions import test
 from cadence_plot import query
-
 import matplotlib.pyplot as plt
 import seaborn as sns
 import re
@@ -12,7 +11,7 @@ import os
 
 
 def usage():
-    print(f'{sys.argv[0]} replot [-s] INPUT [kwargs]')
+    print(f'{sys.argv[0]} [options] replot INPUT [kwargs]')
     print('''
 Data
     x=str                       Change x (default: first column)
@@ -76,10 +75,7 @@ def key_expander(key):
         'ss': 'sscale'
     }
 
-    if key in conversion:
-        return conversion[key]
-    else:
-        return key
+    return conversion[key] if key in conversion else key
 
 
 def plot(df, kwargs):
@@ -152,15 +148,17 @@ def plot(df, kwargs):
 
     plt.figure(figsize=param['figsize'])
 
+    # Change hue column to floats
     if param['hue']:
         df[param['hue']] = df[param['hue']].astype(float)
 
+    # Set palette
     cmap = sns.color_palette(param['palette'], as_cmap=True)
 
     sns.set_style(param['axes'])
     sns.set_context(param['context'])
 
-    # Rescale
+    # Rescale (avoid multiplication if unnecessary)
     if param['xscale'] != 1:
         df[param['x']] = df[param['x']] * param['xscale']
     if param['yscale'] != 1:
@@ -272,12 +270,14 @@ def plot(df, kwargs):
                        borderaxespad=0)
 
     plt.tight_layout()
+
     if param['filename']:
         filename = param['filename'] + '.' + param['filetype']
-        allow = query(f'Overwrite {filename}?', 'yes') if os.path.isfile(filename) else True
+        allow = query(f'Overwrite {filename}?',
+                      'yes') if os.path.isfile(filename) else True
         if allow:
             plt.savefig(filename)
     else:
         param['y'] = re.sub('/', '-', param['y'])
-        plt.savefig(f'./plots/{param["y"]}_' + param['time'] +
-                    f'.{param["filetype"]}')
+        filename = f'./plots/{param["y"]}_' + param['time']
+        plt.savefig(f'{filename}.{param["filetype"]}')
