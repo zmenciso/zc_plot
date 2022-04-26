@@ -64,8 +64,8 @@ RAW = False
 def usage(exitcode):
     print(f'''{sys.argv[0]} [options] PLOT INPUT [kwargs]
     -h  --help      [PLOT]  Display this message or PLOT usage
-    -k  --kwargs    [FILE]  Load additional external kwargs from FILE
-    -x  --export    [FILE]  Exports the current kwargs to FILE
+    -k  --kwargs    FILE    Load additional external kwargs from FILE
+    -x  --export    FILE    Exports the current kwargs to FILE
     -v  --verbose           Enable verbose output
     -s  --summary           Feed in summary data instead of a waveform
     -r  --raw               Feed in a raw .csv file instead of a waveform

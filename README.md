@@ -29,8 +29,8 @@ invoke the main script as follows:
 ```
 ./cadence_plot.py [options] PLOT INPUT [kwargs]
     -h  --help      [PLOT]  Display this message or PLOT usage
-    -k  --kwargs    [FILE]  Load additional external kwargs from FILE
-    -x  --export    [FILE]  Exports the current kwargs to FILE
+    -k  --kwargs    FILE    Load additional external kwargs from FILE
+    -x  --export    FILE    Exports the current kwargs to FILE
     -v  --verbose           Enable verbose output
     -s  --summary           Feed in summary data instead of a waveform
     -r  --raw               Feed in a raw .csv file instead of a waveform
@@ -63,10 +63,10 @@ starting with `#` will be treated as comments.  When using an external file, it
 is **not** necessary to enclose external multi-word kwargs in quotes, and CLI
 kwargs will always be **appended after the external kwargs**. As an example, the
 following file is valid and might be invoked with `./cadence_plot.py -k
-settings.txt PLOT INPUT`.
+mysettings.config PLOT INPUT`.
 
 ```
-# settings.txt
+# mysettings.config
 h	= vdiff
 xs	= 1e9
 ys	= 1e3
