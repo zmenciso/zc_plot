@@ -113,7 +113,7 @@ def log(kwargs, df):
     try:
         fout = open(filename, 'a')
     except Exception as e:
-        print(f'ERROR: Could not open logfile {filename} for writing ({e})',
+        print(f'ERROR: Could not open logfile `{filename}` for writing ({e})',
               file=sys.stderr)
         return time
 
@@ -151,11 +151,17 @@ def log(kwargs, df):
 def export_kwargs(kwargs, filename):
     time = f'{datetime.now().strftime("%Y-%m-%dT%H:%M:%S")}'
 
+    allow = query(f'Overwrite {filename}?',
+                  'yes') if os.path.isfile(filename) else True
+
+    if not allow:
+        return
+
     try:
         fout = open(filename, 'w')
     except Exception as e:
         print(
-            f'ERROR: Could not open export file {filename} for writing ({e})',
+            f'ERROR: Could not open export file `{filename}` for writing ({e})',
             file=sys.stderr)
         return
 
@@ -169,7 +175,7 @@ def export_kwargs(kwargs, filename):
         try:
             fout.write(kwarg.split('=')[0] + '=' + kwarg.split('=')[1] + '\n')
         except Exception as e:
-            print(f'ERROR: Misformed kwarg {kwarg} ({e})', file=sys.stderr)
+            print(f'ERROR: Misformed kwarg `{kwarg}` ({e})', file=sys.stderr)
 
     fout.close()
     return
@@ -288,7 +294,7 @@ if __name__ == '__main__':
         elif args[0] == '-l' or args[0] == '--log':
             LOG = args.pop(1)
         else:
-            print('ERROR: Not a valid option {args[0]}\n', file=sys.stderr)
+            print('ERROR: Not a valid option `{args[0]}`\n', file=sys.stderr)
             usage(1)
 
         args.pop(0)
@@ -307,13 +313,17 @@ if __name__ == '__main__':
     if EXPORT:
         export_kwargs(kwargs, EXPORT)
 
-    # Check plot function, input file
+    # Check plot function, input file, external kwargs
     if PLOT not in ' '.join(os.listdir(FUNC_DIR)):
         print(f'ERROR: {PLOT} is not a valid function', file=sys.stderr)
         sys.exit(101)
     if not os.path.isfile(INPUT):
-        print(f'ERROR: {INPUT} is not a valid file', file=sys.stderr)
+        print(f'ERROR: Input `{INPUT}` is not a valid file', file=sys.stderr)
         sys.exit(102)
+    if not os.path.isfile(KWARGS):
+        print(f'ERROR: External kwargs `{KWARGS}` is not a valid file',
+              file=sys.stderr)
+        sys.exit(103)
 
     # Ingest data
     if SUMMARY:
