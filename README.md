@@ -31,6 +31,7 @@ invoke the main script as follows:
     -h  --help      [PLOT]  Display this message or PLOT usage
     -k  --kwargs    FILE    Load additional external kwargs from FILE
     -x  --export    FILE    Exports the current kwargs to FILE
+    -l  --log       FILE    Change default logfile name (or 'none' to disable)
     -v  --verbose           Enable verbose output
     -s  --summary           Feed in summary data instead of a waveform
     -r  --raw               Feed in a raw .csv file instead of a waveform
