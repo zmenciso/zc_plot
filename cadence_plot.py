@@ -105,7 +105,9 @@ def query(prompt=None, default=None):
 
 def log(kwargs, df):
     time = f'{datetime.now().strftime("%Y-%m-%dT%H:%M:%S")}'
-    if LOG:
+    if LOG == 'none':
+        return time
+    elif LOG:
         filename = LOG
     else:
         filename = LOG_DIR + '/' + time + '.log'
@@ -320,7 +322,7 @@ if __name__ == '__main__':
     if not os.path.isfile(INPUT):
         print(f'ERROR: Input `{INPUT}` is not a valid file', file=sys.stderr)
         sys.exit(102)
-    if not os.path.isfile(KWARGS):
+    if KWARGS and not os.path.isfile(KWARGS):
         print(f'ERROR: External kwargs `{KWARGS}` is not a valid file',
               file=sys.stderr)
         sys.exit(103)
@@ -342,8 +344,7 @@ if __name__ == '__main__':
         ] + kwargs
 
     # Log and plot!
-    if LOG.lower() != 'none':
-        time = log(kwargs, df)
+    time = log(kwargs, df)
     kwargs = [f'time={time}'] + kwargs
     eval(f'{PLOT}.plot(df, kwargs)')
     sys.exit(0)
