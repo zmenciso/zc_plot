@@ -5,6 +5,7 @@
 # TODO: Sample better
 
 from plot_functions import replot
+from scipy.optimize import curve_fit
 import math
 import pandas as pd
 import numpy as np
@@ -17,6 +18,11 @@ def usage():
     Ts=float        Set sample period in s, overrides fs (default: 1/fs)
     delay=float     Set delay before first sample (default: 0)
     Uses the same plotting kwargs as replot''')
+
+
+def gauss(x, H, A, mu, sigma):
+    return H + (A / (sigma * math.sqrt(2 * math.pi))) * np.exp(-0.5 * ((
+        (x - mu) / sigma)**2))
 
 
 def plot(df, kwargs):
@@ -59,7 +65,27 @@ def plot(df, kwargs):
     pd_sampled = pd.DataFrame(d_fill.T.values,
                               columns=['x', param['y']]).iloc[1:, :]
 
-    # TODO: Fit Gaussian to the data
+    y = pd_sampled[param['y']][1:].values - pd_sampled[param['y']][0:-1].values
+    x = pd_sampled['x'][0:-1].values
+    x = x + (x[-1] - x[-2]) * 0.5
+
+    try:
+        parameters, covariance = curve_fit(
+            gauss,
+            x,
+            y,
+            maxfev=100000,
+            bounds=np.array([[-np.inf, 0, -np.inf, 0],
+                             [np.inf, np.inf, np.inf, np.inf]]))
+
+        print(f'''Gaussian fit parameters:
+sigma {parameters[3]:{1}.{6}}
+   mu {parameters[2]:{1}.{6}}
+    A {parameters[1]:{1}.{6}}
+    H {parameters[0]:{1}.{6}}''')
+
+    except Exception as e:
+        print(f'ERROR: Unable to fit Gaussian curve: {e}')
 
     kwargs = ['pt=scatter'] + kwargs + [f'y={param["y"]}']
     replot.plot(pd_sampled, kwargs)

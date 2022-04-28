@@ -266,6 +266,7 @@ if __name__ == '__main__':
                       'yes')
         if allow:
             os.mkdir(PROJ_DIR + '/plots')
+
     if not os.path.isdir(PROJ_DIR + '/logs'):
         allow = query('Default `logs` directory does not exist, create it?',
                       'yes')
