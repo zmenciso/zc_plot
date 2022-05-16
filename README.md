@@ -81,13 +81,13 @@ properly-formatted text file by using the `-x` or `--export` switch.
 ### Replot
 
 The most versatile of the plotting functions is `replot`, which accepts either a
-waveform **or** summary data **or** a raw CSV and plots arbitrary axes.
-`replot` supports several Seaborn plot styles, including lineplots,
-scatterplots, histograms, kde plots, and even some combinations (like histograms
-with kde, invoked with any string that contains both `hist` _and_ `kde`).
-Jointplots are also supported; you can include the type of the jointplot in
-`ptype` (e.g. `jointkde`, `hexjoint`). Most of the Seaborn settings are exposed
-with the kwargs listed below:
+waveform **or** summary data **or** a raw CSV and plots arbitrary axes. `replot`
+supports several Seaborn plot styles, including lineplots, scatterplots,
+histograms, kde plots, and even some combinations (like histograms with kde,
+invoked with any string that contains both `hist` _and_ `kde`). Jointplots are
+also supported; you can include the type of the jointplot in `ptype` (e.g.
+`jointkde`, `hexjoint`). Heatmaps are in beta support.  Most of the Seaborn
+settings are exposed with the kwargs listed below:
 
 ```
 ./cadence_plot.py replot [options] INPUT [kwargs]
