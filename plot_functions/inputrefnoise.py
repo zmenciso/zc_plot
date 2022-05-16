@@ -20,9 +20,8 @@ def usage():
     Uses the same plotting kwargs as replot''')
 
 
-def gauss(x, H, A, mu, sigma):
-    return H + (A / (sigma * math.sqrt(2 * math.pi))) * np.exp(-0.5 * ((
-        (x - mu) / sigma)**2))
+def gauss(x, H, A, x0, sigma):
+    return H + A * np.exp(-((x - x0) ** 2) / (2 * sigma**2))
 
 
 def plot(df, kwargs):
