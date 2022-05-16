@@ -5,6 +5,7 @@
 from cadence_plot import query
 import matplotlib.pyplot as plt
 import seaborn as sns
+import numpy as np
 import re
 import sys
 import os
@@ -205,6 +206,18 @@ def plot(df, kwargs):
                            hue=param['hue'],
                            palette=cmap)
 
+    elif 'heat' in param['ptype']:
+        # TODO: Remove the need for rounding
+        if not param['hue'] or param['size'] or param['style']:
+            print('ERROR: heamap must have only x, y, and hue defined',
+                  file=sys.stderr)
+        df[param['x']] = np.round(df[param['x']])
+        df[param['y']] = np.round(df[param['y']])
+        df = df.pivot_table(columns=param['x'],
+                            index=param['y'],
+                            values=param['hue'])
+        ax = sns.heatmap(data=df, cmap=cmap)
+
     elif 'hist' in param['ptype']:
         ax = sns.histplot(
             data=df,
@@ -249,7 +262,8 @@ def plot(df, kwargs):
     if param['logy']:
         ax.set_yscale('log')
 
-    if param['bbox'] != 'none' and (param['hue'] or param['style']):
+    if param['bbox'] != 'none' and (
+            param['hue'] or param['style']) and 'heat' not in param['ptype']:
         handles, labels = plt.gca().get_legend_handles_labels()
         if param['bbox'] == 'center':
             plt.legend(handles,
