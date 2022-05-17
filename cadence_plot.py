@@ -240,7 +240,7 @@ def ingest_summary(filename):
     param = df_in.loc[df_in["Point"].str.contains("Parameters"), "Point"]
 
     df = pd.DataFrame(
-        param.str.findall(r"[0-9a-z\.-]+=([0-9a-z\.-]*)").to_list(), )
+        param.str.findall(r"[0-9a-z\.-]+=([0-9a-z\.-]*)").to_list())
 
     df = si_convert(df, re.findall(r"([0-9a-z\.-]+)=[0-9a-z\.-]+", param[0]))
     df = df.astype(float)
