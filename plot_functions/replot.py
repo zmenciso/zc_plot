@@ -207,12 +207,13 @@ def plot(df, kwargs):
                            palette=cmap)
 
     elif 'heat' in param['ptype']:
-        # TODO: Remove the need for rounding
+        # TODO: Rounding is cringe, remove it
+        # TODO: Support for vlim
         if not param['hue'] or param['size'] or param['style']:
             print('ERROR: heamap must have only x, y, and hue defined',
                   file=sys.stderr)
-        df[param['x']] = np.round(df[param['x']])
-        df[param['y']] = np.round(df[param['y']])
+        df[param['x']] = np.round(df[param['x']], 1)
+        df[param['y']] = np.round(df[param['y']], 1)
         df = df.pivot_table(columns=param['x'],
                             index=param['y'],
                             values=param['hue'])
