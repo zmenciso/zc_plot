@@ -24,6 +24,15 @@ def gauss(x, H, A, x0, sigma):
     return H + A * np.exp(-((x - x0) ** 2) / (2 * sigma**2))
 
 
+def align_num(num):
+    string = str(num)
+
+    if '-' in string:
+        return string[:12] if len(string) >= 12 else string
+    else:
+        return ' ' + string[:11] if len(string) >= 11 else ' ' + string
+
+
 def plot(df, kwargs):
     param = {
         'fs': 50e6,
@@ -78,10 +87,10 @@ def plot(df, kwargs):
                              [np.inf, np.inf, np.inf, np.inf]]))
 
         print(f'''Gaussian fit parameters:
-sigma {parameters[3]:{1}.{6}}
-   mu {parameters[2]:{1}.{6}}
-    A {parameters[1]:{1}.{6}}
-    H {parameters[0]:{1}.{6}}''')
+sigma {align_num(parameters[3])}
+   mu {align_num(parameters[2])}
+    A {align_num(parameters[1])}
+    H {align_num(parameters[0])}''')
 
     except Exception as e:
         print(f'ERROR: Unable to fit Gaussian curve: {e}')
