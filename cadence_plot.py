@@ -372,8 +372,8 @@ if __name__ == '__main__':
     # Interactive mode
     if INTERACT:
         print('Ingested data:')
-        print(df + '\n')
-        print('-' * 30 + ' kwarg editor ' + '-' * 30)
+        print(df)
+        print('\n' + '-' * 30 + ' kwarg editor ' + '-' * 30)
         kwargs += input_list()
 
     # Export kwargs
