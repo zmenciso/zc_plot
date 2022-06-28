@@ -85,8 +85,9 @@ yl	= Output Voltage [mV]
 
 The kwargs that are currently in use can also be exported to a
 properly-formatted text file by using the `-x` or `--export` switch.  This is
-very useful in conjunction with **interactive mode**, allowing you to view the
-data, set the kwargs, and then export for future runs.
+very useful in conjunction with **interactive mode** (`-i` or `--interact`),
+allowing you to view the parsed data, set the kwargs using the kwarg editor, and
+then export for future runs.
 
 ### Replot
 
