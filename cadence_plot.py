@@ -32,8 +32,8 @@ SI = {
 
 CWD = os.getcwd()
 PROJ_DIR = os.path.dirname(os.path.realpath(__file__))
-FUNC_DIR = PROJ_DIR + '/plot_functions'
-LOG_DIR = PROJ_DIR + '/logs'
+FUNC_DIR = os.path.join(PROJ_DIR, 'plot_functions')
+LOG_DIR = os.path.join(PROJ_DIR, 'logs')
 
 try:
     VERSION = subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).decode('ascii').strip()
@@ -56,6 +56,7 @@ LOG = None
 VERBOSE = False
 SUMMARY = False
 RAW = False
+INTERACT = False
 
 # Functions
 
@@ -66,6 +67,7 @@ def usage(exitcode):
     -k  --kwargs    FILE    Load additional external kwargs from FILE
     -x  --export    FILE    Exports the current kwargs to FILE
     -l  --log       FILE    Change default logfile name (or 'none' to disable)
+    -i  --interact          View data ingest before setting kwargs
     -v  --verbose           Enable verbose output
     -s  --summary           Feed in summary data instead of a waveform
     -r  --raw               Feed in a raw .csv file instead of a waveform
@@ -112,6 +114,8 @@ def log(kwargs, df):
     else:
         filename = LOG_DIR + '/' + time + '.log'
 
+    filename = filename.replace("\\", "/")
+
     try:
         fout = open(filename, 'a')
     except Exception as e:
@@ -135,6 +139,7 @@ def log(kwargs, df):
     fout.write(f'''Arguments:
     Data ingest type: {ingest}
     Verbose: {VERBOSE}
+    Interactive: {INTERACT}
     Export file: {EXPORT}
     External kwargs file: {KWARGS}\n''')
 
@@ -147,6 +152,7 @@ def log(kwargs, df):
     print(df, file=fout)
 
     fout.close()
+    print(f'Logfile: {os.path.realpath(filename)}')
     return time
 
 
@@ -192,24 +198,33 @@ def ingest_wave(filename):
     check_filetype(filename)
 
     df_in = pd.read_csv(filename)
-    df = pd.DataFrame()
-
     x = df_in.iloc[:, 0]
-    for label, content in df_in.iloc[:, 1::2].iteritems():
-        param = list()
-        if attr := re.findall(r".+ \((.*)\) .+", label):
-            param = attr[0].split(",")
 
-        d_fill = pd.DataFrame(np.array(
-            [x.astype(float), content.astype(float)]).T,
-                              columns=['x', label.split()[0]])
-        for term in param:
-            d_fill[term.split('=')[0]] = np.repeat(float(term.split('=')[1]),
-                                                   len(d_fill['x']))
+    num = len(np.unique([item.split()[0] for item in df_in.columns]))
+    df = pd.DataFrame(np.tile(np.array(x).astype(float), len(df_in.columns) // 2 // num).T, columns=['x'])
 
-        df = pd.concat([df, d_fill], axis=0, ignore_index=True)
+    for i in range(num):
+        df_fill = pd.DataFrame()
 
-    return df
+        for label, content in df_in.iloc[:, (i*num + 1):(i*num + num):2].iteritems():
+            wave = label.split()[0].strip('/')
+            param = list()
+
+            if attr := re.findall(r".+ \((.*)\) .+", label):
+                param = attr[0].split(",")
+
+            d_fill = pd.DataFrame(np.array(
+                [content.astype(float)]).T,
+                                  columns=[wave])
+            for term in param:
+                d_fill[term.split('=')[0]] = np.repeat(float(term.split('=')[1]),
+                                                       len(d_fill[wave]))
+
+            df_fill = pd.concat([df_fill, d_fill], axis=0, ignore_index=True)
+
+        df = pd.concat([df, df_fill], axis=1)
+
+    return df.loc[:, ~df.columns.duplicated()].copy()
 
 
 def si_convert(df, columns):
@@ -217,14 +232,24 @@ def si_convert(df, columns):
         repl = np.unique(df[col].str.extract(r'([a-zA-Z])').astype(str))
 
         for item in repl:
-            df[col] = df[col].str.replace(item,
-                                          SI[item],
-                                          regex=False,
-                                          case=True)
+            df[col] = df[col].str.replace(item, SI[item], regex=False, case=True)
 
     df.columns = columns
 
     return df
+
+
+def input_list():
+    contents = list()
+
+    while True:
+        try:
+            line = input()
+            contents.append(re.sub(r'\s+=\s+', '=', line.strip()))
+        except EOFError or KeyboardInterrupt:
+            break
+
+    return contents
 
 
 def check_filetype(filename):
@@ -261,17 +286,17 @@ def ingest_summary(filename):
 
 if __name__ == '__main__':
     # Create default directories
-    if not os.path.isdir(PROJ_DIR + '/plots'):
+    if not os.path.isdir(os.path.join(PROJ_DIR, 'plots')):
         allow = query('Default `plots` directory does not exist, create it?',
                       'yes')
         if allow:
-            os.mkdir(PROJ_DIR + '/plots')
+            os.mkdir(os.path.join(PROJ_DIR, 'plots'))
 
-    if not os.path.isdir(PROJ_DIR + '/logs'):
+    if not os.path.isdir(os.path.join(PROJ_DIR, 'logs')):
         allow = query('Default `logs` directory does not exist, create it?',
                       'yes')
         if allow:
-            os.mkdir(PROJ_DIR + '/logs')
+            os.mkdir(os.path.join(PROJ_DIR, 'logs'))
 
     # Parse command line options
     args = sys.argv[1:]
@@ -288,6 +313,8 @@ if __name__ == '__main__':
             VERBOSE = True
         elif args[0] == '-s' or args[0] == '--summary':
             SUMMARY = True
+        elif args[0] == '-i' or args[0] == '--interact':
+            INTERACT = True
         elif args[0] == '-r' or args[0] == '--raw':
             RAW = True
         elif args[0] == '-k' or args[0] == '--kwargs':
@@ -311,10 +338,6 @@ if __name__ == '__main__':
         PLOT = args.pop(0)
         INPUT = args.pop(0)
         kwargs = args
-
-    # Export kwargs
-    if EXPORT:
-        export_kwargs(kwargs, EXPORT)
 
     # Check plot function, input file, external kwargs
     if PLOT not in ' '.join(os.listdir(FUNC_DIR)):
@@ -343,6 +366,17 @@ if __name__ == '__main__':
             re.sub(r'\s+=\s+', '=', line.strip()) for line in open(KWARGS)
             if line.strip() and not line.strip().startswith('#')
         ] + kwargs
+
+    # Interactive mode
+    if INTERACT:
+        print('Ingested data:')
+        print(df + '\n')
+        print('-' * 30 + ' kwarg editor ' + '-' * 30)
+        kwargs += input_list()
+
+    # Export kwargs
+    if EXPORT:
+        export_kwargs(kwargs, EXPORT)
 
     # Log and plot!
     time = log(kwargs, df)

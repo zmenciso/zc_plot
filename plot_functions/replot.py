@@ -16,7 +16,7 @@ def usage():
     print('''
 Data
     x=str                       Change x (default: first column)
-    y=str                       Change y (default: second column)
+    y=list                      Change y (default: second column)
     hue=str         h=str       Specify hue (WARNING default: None)
     style=str       s=str       Specify style (default: None)
     size=str                    Specify size (default: None)
@@ -39,7 +39,7 @@ Figure
 Drawing
     width=float     w=float     Change marker or line width (default: Depends)
     alpha=float     a=float     Change alpha (default: 0.5)
-    palette=str     c=str       Palette, accepts cubehelix (default: 'crest')
+    palette=list    c=list      Palette, accepts cubehelix (default: 'crest')
     ptype=str       pt=str      Change the plot type (default: 'line')
     ci=float                    Change confidence interval size (default: 95)
     stat=str                    Change stat/estimator (default: Depends)
@@ -49,6 +49,86 @@ Drawing
 File
     filetype=str    ft=str      Change filetype (default: 'svg')
     filename=str    fn=str      Custom filename''')
+
+
+def draw(y, df, cmap, param):
+    if 'line' in param['ptype']:
+        ax = sns.lineplot(data=df,
+                          x=param['x'],
+                          y=y,
+                          hue=param['hue'],
+                          style=param['style'],
+                          size=param['size'],
+                          alpha=param['alpha'],
+                          estimator=param['stat'] if param['stat'] else 'mean',
+                          lw=param['width'] if param['width'] else 2,
+                          ci=param['ci'],
+                          palette=cmap)
+
+    elif 'scatter' in param['ptype']:
+        ax = sns.scatterplot(data=df,
+                             x=param['x'],
+                             y=y,
+                             hue=param['hue'],
+                             style=param['style'],
+                             size=param['size'],
+                             alpha=param['alpha'],
+                             edgecolor=None,
+                             s=param['width'] if param['width'] else 16,
+                             palette=cmap)
+
+    elif 'joint' in param['ptype']:
+        ax = sns.jointplot(data=df,
+                           x=param['x'],
+                           y=y,
+                           kind=re.sub('joint', '', param['ptype']),
+                           height=param['figsize'][0],
+                           hue=param['hue'],
+                           palette=cmap)
+
+    elif 'heat' in param['ptype']:
+        # TODO: Rounding is cringe, remove it
+        # TODO: Support for vlim
+        if not param['hue'] or param['size'] or param['style']:
+            print('ERROR: heamap must have only x, y, and hue defined',
+                  file=sys.stderr)
+        df[param['x']] = np.round(df[param['x']], 1)
+        df[y] = np.round(df[y], 1)
+        df = df.pivot_table(columns=param['x'],
+                            index=y,
+                            values=param['hue'])
+        ax = sns.heatmap(data=df, cmap=cmap)
+
+    elif 'hist' in param['ptype']:
+        ax = sns.histplot(
+            data=df,
+            x=param['x'],
+            y=y if y != 'None' else None,
+            fill=not param['fill'],
+            stat=param['stat'] if param['stat'] else 'count',
+            bins=param['bins'],
+            hue=param['hue'],
+            kde=('kde' in param['ptype']),
+            multiple=param['multiple'],
+            cbar=True if y != 'None' else False,
+            cbar_kws=dict(shrink=.75) if y != 'None' else None,
+            palette=cmap)
+
+    elif 'kde' in param['ptype']:
+        ax = sns.kdeplot(
+            data=df,
+            x=param['x'],
+            y=y if y != 'None' else None,
+            fill=param['fill'],
+            levels=param['bins'],
+            hue=param['hue'],
+            lw=param['width'] if param['width'] else 2,
+            multiple=param['multiple'],
+            cbar=True if y != 'None' else False,
+            cbar_kws=dict(shrink=.75) if y != 'None' else None,
+            palette=cmap)
+
+    return ax
 
 
 def key_expander(key):
@@ -121,8 +201,10 @@ def plot(df, kwargs):
         param[key] = value
 
     # Fix data types
+    param['y'] = param['y'].strip('{[()]}').split(',')
+    param['palette'] = param['palette'].strip('{[()]}').split(',')
     param['figsize'] = tuple(
-        map(float, param['figsize'].strip('()').split(',')))
+        map(float, param['figsize'].strip('{[()]}').split(',')))
     param['alpha'] = float(param['alpha'])
     param['width'] = float(param['width']) if param['width'] else None
     param['ci'] = float(param['ci'])
@@ -138,7 +220,7 @@ def plot(df, kwargs):
 
     # Set labels
     if not param['ylabel']:
-        param['ylabel'] = param['y']
+        param['ylabel'] = param['y'][0]
     if not param['xlabel']:
         param['xlabel'] = param['x']
 
@@ -152,9 +234,6 @@ def plot(df, kwargs):
     # Change hue column to floats
     if param['hue']:
         df[param['hue']] = df[param['hue']].astype(float)
-
-    # Set palette
-    cmap = sns.color_palette(param['palette'], as_cmap=True)
 
     sns.set_style(param['axes'])
     sns.set_context(param['context'])
@@ -171,82 +250,11 @@ def plot(df, kwargs):
 
     # test.debug(param, df)
 
-    # Draw plots
-    if 'line' in param['ptype']:
-        ax = sns.lineplot(data=df,
-                          x=param['x'],
-                          y=param['y'],
-                          hue=param['hue'],
-                          style=param['style'],
-                          size=param['size'],
-                          alpha=param['alpha'],
-                          estimator=param['stat'] if param['stat'] else 'mean',
-                          lw=param['width'] if param['width'] else 2,
-                          ci=param['ci'],
-                          palette=cmap)
-
-    elif 'scatter' in param['ptype']:
-        ax = sns.scatterplot(data=df,
-                             x=param['x'],
-                             y=param['y'],
-                             hue=param['hue'],
-                             style=param['style'],
-                             size=param['size'],
-                             alpha=param['alpha'],
-                             edgecolor=None,
-                             s=param['width'] if param['width'] else 16,
-                             palette=cmap)
-
-    elif 'joint' in param['ptype']:
-        ax = sns.jointplot(data=df,
-                           x=param['x'],
-                           y=param['y'],
-                           kind=re.sub('joint', '', param['ptype']),
-                           height=param['figsize'][0],
-                           hue=param['hue'],
-                           palette=cmap)
-
-    elif 'heat' in param['ptype']:
-        # TODO: Rounding is cringe, remove it
-        # TODO: Support for vlim
-        if not param['hue'] or param['size'] or param['style']:
-            print('ERROR: heamap must have only x, y, and hue defined',
-                  file=sys.stderr)
-        df[param['x']] = np.round(df[param['x']], 1)
-        df[param['y']] = np.round(df[param['y']], 1)
-        df = df.pivot_table(columns=param['x'],
-                            index=param['y'],
-                            values=param['hue'])
-        ax = sns.heatmap(data=df, cmap=cmap)
-
-    elif 'hist' in param['ptype']:
-        ax = sns.histplot(
-            data=df,
-            x=param['x'],
-            y=param['y'] if param['y'] != 'None' else None,
-            fill=not param['fill'],
-            stat=param['stat'] if param['stat'] else 'count',
-            bins=param['bins'],
-            hue=param['hue'],
-            kde=('kde' in param['ptype']),
-            multiple=param['multiple'],
-            cbar=True if param['y'] != 'None' else False,
-            cbar_kws=dict(shrink=.75) if param['y'] != 'None' else None,
-            palette=cmap)
-
-    elif 'kde' in param['ptype']:
-        ax = sns.kdeplot(
-            data=df,
-            x=param['x'],
-            y=param['y'] if param['y'] != 'None' else None,
-            fill=param['fill'],
-            levels=param['bins'],
-            hue=param['hue'],
-            lw=param['width'] if param['width'] else 2,
-            multiple=param['multiple'],
-            cbar=True if param['y'] != 'None' else False,
-            cbar_kws=dict(shrink=.75) if param['y'] != 'None' else None,
-            palette=cmap)
+    # Draw plots!
+    for index, y in enumerate(param['y']):
+        palette = param['palette'][index % len(param['palette'])]
+        cmap = sns.color_palette(palette, as_cmap=True)
+        ax = draw(y, df, cmap, param)
 
     plt.xlabel(param['xlabel'])
     plt.ylabel(param['ylabel'])
@@ -265,7 +273,14 @@ def plot(df, kwargs):
 
     if param['bbox'] != 'none' and (
             param['hue'] or param['style']) and 'heat' not in param['ptype']:
+
         handles, labels = plt.gca().get_legend_handles_labels()
+
+        if len(param['y']) > 1:
+            for index, wave in enumerate(param['y']):
+                for i in range(index, len(labels), len(param['y'])):
+                    labels[i] = f'{wave} ' + labels[i]
+
         if param['bbox'] == 'center':
             plt.legend(handles,
                        labels,
@@ -275,6 +290,7 @@ def plot(df, kwargs):
                        title=param['ltitle']
                        if param['ltitle'].lower() != 'none' else None,
                        borderaxespad=0)
+
         else:
             plt.legend(handles,
                        labels,
@@ -293,6 +309,8 @@ def plot(df, kwargs):
         if allow:
             plt.savefig(filename)
     else:
-        param['y'] = re.sub('/', '-', param['y'])
-        filename = f'./plots/{param["y"]}_' + param['time']
+        y = re.sub('/', '-', '+'.join(param['y']))
+        filename = f'./plots/{y}_' + param['time']
         plt.savefig(f'{filename}.{param["filetype"]}')
+
+    print(f'Output:  {os.path.realpath(filename)}.{param["filetype"]}')

@@ -19,14 +19,17 @@ versions:
   - `pandas` == 1.4.0
   - `seaborn` == 0.11.2
 
+This project is __theoretically__ OS-insensitive, but unforeseen issues might
+arise.  Please report (or fix!) any problems with non-Linux operating systems.
+
 ##  Usage
 
-This script supports plotting **waveforms** (or groups of waveforms), **Maestro
-summary data** (with the `-s` or `--summary` switch), or any **raw CSV file**
-(with the `-r` or `--raw` switch). If plotting waveforms, select all the waves
-in the waveform viewer and export your data as a `.csv` file.  Make sure to
-enable the "Interpolate" option so each waveform has the same time axis.  Then,
-invoke the main script as follows:
+This script supports plotting **waveforms** (or groups of waveforms, or even
+multiple series of groups), **Maestro summary data** (with the `-s` or
+`--summary` switch), or any **raw CSV file** (with the `-r` or `--raw` switch).
+If plotting waveforms, select all the waves in the waveform viewer and export
+your data as a `.csv` file.  Make sure to enable the "Interpolate" option so
+each waveform has the same time axis.  Then, invoke the main script as follows:
 
 ```
 ./cadence_plot.py [options] PLOT INPUT [kwargs]
@@ -34,6 +37,7 @@ invoke the main script as follows:
     -k  --kwargs    FILE    Load additional external kwargs from FILE
     -x  --export    FILE    Exports the current kwargs to FILE
     -l  --log       FILE    Change default logfile name (or 'none' to disable)
+    -i  --interact          View data ingest before settings kwargs
     -v  --verbose           Enable verbose output
     -s  --summary           Feed in summary data instead of a waveform
     -r  --raw               Feed in a raw .csv file instead of a waveform
@@ -78,7 +82,9 @@ yl	= Output Voltage [mV]
 ```
 
 The kwargs that are currently in use can also be exported to a
-properly-formatted text file by using the `-x` or `--export` switch.  
+properly-formatted text file by using the `-x` or `--export` switch.  This is
+very useful in conjunction with **interactive mode**, allowing you to view the
+data, set the kwargs, and then export for future runs.
 
 ### Replot
 
@@ -96,7 +102,7 @@ settings are exposed with the kwargs listed below:
 
 Data
     x=str                       Change x (default: first column)
-    y=str                       Change y (default: second column)
+    y=list                      Change y (default: second column)
     hue=str         h=str       Specify hue (WARNING default: None)
     style=str       s=str       Specify style (default: None)
     size=str                    Specify size (default: None)
@@ -119,7 +125,7 @@ Figure
 Drawing
     width=float     w=float     Change marker or line width (default: Depends)
     alpha=float     a=float     Change alpha (default: 0.5)
-    palette=str     c=str       Palette, accepts cubehelix (default: 'crest')
+    palette=list    c=list      Palette, accepts cubehelix (default: 'crest')
     ptype=str       pt=str      Change the plot type (default: 'line')
     ci=float                    Change confidence interval size (default: 95)
     stat=str                    Change stat/estimator (default: Depends)
@@ -133,7 +139,7 @@ File
 
 ### Help! It doesn't work!
 
-Yeah, well, it's pretty jenky software, so do temper your expectations.  I
+Yeah, well, it's extremely jenky software, so do temper your expectations.  I
 recommend checking the logfile to make sure you have set the args and kwargs
 correctly and chosen the right data ingest type.  Remember that failing to
 specify additional plot dimensions (i.e. hue, size, and style) will cause your
@@ -141,7 +147,7 @@ data to be flattened to two dimensions. The logfile also includes a
 representation of the internal DataFrame, which you can check for oddities.
 
 You can also post an issue on the GitHub page.  If you do so, please include the
-**input file**, **log file**, and any **error messages** (printed to stderr).
+**input file**, **log file**, and any **error messages** (printed to `stderr`).
 
 ##  Writing Additional Plot Functions
 
