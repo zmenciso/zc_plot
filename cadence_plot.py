@@ -36,7 +36,8 @@ FUNC_DIR = os.path.join(PROJ_DIR, 'plot_functions')
 LOG_DIR = os.path.join(PROJ_DIR, 'logs')
 
 try:
-    VERSION = subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).decode('ascii').strip()
+    VERSION = subprocess.check_output(['git', 'rev-parse', '--short',
+                                       'HEAD']).decode('ascii').strip()
 except Exception:
     VERSION = 'UNKNOWN'
 
@@ -201,24 +202,25 @@ def ingest_wave(filename):
     x = df_in.iloc[:, 0]
 
     num = len(np.unique([item.split()[0] for item in df_in.columns]))
-    df = pd.DataFrame(np.tile(np.array(x).astype(float), len(df_in.columns) // 2 // num).T, columns=['x'])
+    series = len(df_in.columns) // 2 // num
+    df = pd.DataFrame(np.tile(np.array(x).astype(float), series).T,
+                      columns=['x'])
 
     for i in range(num):
         df_fill = pd.DataFrame()
 
-        for label, content in df_in.iloc[:, (i*num + 1):(i*num + num):2].iteritems():
+        for label, content in df_in.iloc[:, (2 * i * series + 1):(2 * i * series + 1 + series):2].iteritems():
             wave = label.split()[0].strip('/')
             param = list()
 
             if attr := re.findall(r".+ \((.*)\) .+", label):
                 param = attr[0].split(",")
 
-            d_fill = pd.DataFrame(np.array(
-                [content.astype(float)]).T,
+            d_fill = pd.DataFrame(np.array([content.astype(float)]).T,
                                   columns=[wave])
             for term in param:
-                d_fill[term.split('=')[0]] = np.repeat(float(term.split('=')[1]),
-                                                       len(d_fill[wave]))
+                d_fill[term.split('=')[0]] = np.repeat(
+                    float(term.split('=')[1]), len(d_fill[wave]))
 
             df_fill = pd.concat([df_fill, d_fill], axis=0, ignore_index=True)
 

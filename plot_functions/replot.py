@@ -94,39 +94,35 @@ def draw(y, df, cmap, param):
                   file=sys.stderr)
         df[param['x']] = np.round(df[param['x']], 1)
         df[y] = np.round(df[y], 1)
-        df = df.pivot_table(columns=param['x'],
-                            index=y,
-                            values=param['hue'])
+        df = df.pivot_table(columns=param['x'], index=y, values=param['hue'])
         ax = sns.heatmap(data=df, cmap=cmap)
 
     elif 'hist' in param['ptype']:
-        ax = sns.histplot(
-            data=df,
-            x=param['x'],
-            y=y if y != 'None' else None,
-            fill=not param['fill'],
-            stat=param['stat'] if param['stat'] else 'count',
-            bins=param['bins'],
-            hue=param['hue'],
-            kde=('kde' in param['ptype']),
-            multiple=param['multiple'],
-            cbar=True if y != 'None' else False,
-            cbar_kws=dict(shrink=.75) if y != 'None' else None,
-            palette=cmap)
+        ax = sns.histplot(data=df,
+                          x=param['x'],
+                          y=y if y != 'None' else None,
+                          fill=not param['fill'],
+                          stat=param['stat'] if param['stat'] else 'count',
+                          bins=param['bins'],
+                          hue=param['hue'],
+                          kde=('kde' in param['ptype']),
+                          multiple=param['multiple'],
+                          cbar=True if y != 'None' else False,
+                          cbar_kws=dict(shrink=.75) if y != 'None' else None,
+                          palette=cmap)
 
     elif 'kde' in param['ptype']:
-        ax = sns.kdeplot(
-            data=df,
-            x=param['x'],
-            y=y if y != 'None' else None,
-            fill=param['fill'],
-            levels=param['bins'],
-            hue=param['hue'],
-            lw=param['width'] if param['width'] else 2,
-            multiple=param['multiple'],
-            cbar=True if y != 'None' else False,
-            cbar_kws=dict(shrink=.75) if y != 'None' else None,
-            palette=cmap)
+        ax = sns.kdeplot(data=df,
+                         x=param['x'],
+                         y=y if y != 'None' else None,
+                         fill=param['fill'],
+                         levels=param['bins'],
+                         hue=param['hue'],
+                         lw=param['width'] if param['width'] else 2,
+                         multiple=param['multiple'],
+                         cbar=True if y != 'None' else False,
+                         cbar_kws=dict(shrink=.75) if y != 'None' else None,
+                         palette=cmap)
 
     return ax
 
