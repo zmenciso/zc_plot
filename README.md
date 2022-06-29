@@ -3,9 +3,9 @@
 Zephan M. Enciso  
 Intelligent MicroSystems Lab  
 
-![Example 0](./sample0.svg)
-![Example 1](./sample1.svg)
-![Example 2](./sample2.svg)
+![Example 0](./samples/sample0.svg)
+![Example 1](./samples/sample1.svg)
+![Example 2](./samples/sample2.svg)
 
 Plots generated from one simple command!
 
