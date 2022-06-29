@@ -9,10 +9,6 @@ def usage():
 
 
 def plot(df, kwargs):
-    return df
-
-
-def debug(param, df):
-    pprint(param)
-    print()
+    pprint(kwargs)
     pprint(df)
+    return df

@@ -6,7 +6,6 @@
 
 from plot_functions import replot
 from scipy.optimize import curve_fit
-import math
 import pandas as pd
 import numpy as np
 import sys

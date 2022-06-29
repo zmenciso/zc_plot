@@ -13,7 +13,7 @@ Plots generated from one simple command!
 
 These utilities have been tested with Linux 4.18.0 and the following software
 versions:
-  - `python` == 3.9.7
+  - `python` >= 3.9.7
   - `matplotlib` == 3.5.1
   - `jedi` == 0.18.1
   - `scipy` == 1.8.0
@@ -21,7 +21,7 @@ versions:
   - `pandas` == 1.4.0
   - `seaborn` == 0.11.2
 
-This project is __theoretically__ OS-insensitive, but unforeseen issues might
+This project is _theoretically_ OS-insensitive, but unforeseen issues might
 arise.  Please report (or fix!) any problems with non-Linux operating systems.
 
 ##  Usage
@@ -53,8 +53,8 @@ List of available PLOTs:
 INPUT must be a valid CSV, e.g. `data/my_data.csv`.
 ```
 
-To provide a multi-word kwarg, either enclose the entire kwarg definition in
-quotes or just the value, e.g.:
+To provide a multi-word keyword argument, either enclose the entire kwarg
+definition in quotes or just the value, e.g.:
 
 ```bash
 ./cadence_plot.py replot data.csv 'xlabel=Time [s]'
@@ -66,28 +66,17 @@ quotes or just the value, e.g.:
 ./cadence_plot.py replot data.csv xlabel='Time [s]'
 ```
 
-Additionally, kwargs can be loaded from an **external file**, specified after
-the `-k` or `--kwargs` switch.  This file must be **line-delimited**, and lines
-starting with `#` will be treated as comments.  When using an external file, it
-is **not** necessary to enclose external multi-word kwargs in quotes, and CLI
-kwargs will always be **appended after the external kwargs**. As an example, the
-following file is valid and might be invoked with `./cadence_plot.py -k
-mysettings.config PLOT INPUT`.
+Or, start the script in **interactive mode** with the `-i` or `--interact`
+switch, which previews the parsed data and opens a kwarg editor (no quotes
+needed).  This tool is especially powerful when combined with the `-x` or
+`--export` switch, which saves the current kwargs to a properly-formatted text
+file.
 
-```
-# mysettings.config
-h	= vdiff
-xs	= 1e9
-ys	= 1e3
-xl	= Time [ns]
-yl	= Output Voltage [mV]
-```
-
-The kwargs that are currently in use can also be exported to a
-properly-formatted text file by using the `-x` or `--export` switch.  This is
-very useful in conjunction with **interactive mode** (`-i` or `--interact`),
-allowing you to view the parsed data, set the kwargs using the kwarg editor, and
-then export for future runs.
+To load kwargs from an external file, use the `-k` or `--kwargs` switch.  This
+file must be **line-delimited** and lines starting with `#` will be treated as
+comments.  When using an external file, it is **not** necessary to enclose
+external multi-word kwargs in quotes, and any CLI kwargs will always be
+**appended after the external kwargs**.
 
 ### Replot
 
@@ -152,6 +141,7 @@ representation of the internal DataFrame, which you can check for oddities.
 You can also post an issue on the GitHub page.  If you do so, please include the
 **input file**, **log file**, and any **error messages** (printed to `stderr`).
 
+
 ##  Writing Additional Plot Functions
 
 Each new plot function should be defined in a different file in the
@@ -171,7 +161,8 @@ def plot(df, kwargs):
 ```
 
 It is also possible to **call other plot functions**.  For example, using
-`replot` is a convenient way to draw line plots without re-parsing the kwargs.
+`replot` is a convenient way to draw plots without re-parsing the kwargs.  When
+there are duplicate kwarg definitions, the last one is used.
 
 ```python
 from plot_functions import replot

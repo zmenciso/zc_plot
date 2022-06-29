@@ -1,34 +1,19 @@
 #!/usr/bin/env python
 
 # Zephan M. Enciso
+# zenciso@nd.edu
 # Intelligent MicroSystems Lab
 
-from datetime import datetime
 import sys
 import os
 import re
 import subprocess
 import pandas as pd
-import numpy as np
+from src import ingest
+from src import tools
+from datetime import datetime
 
 # Globals
-
-SI = {
-    'm': 'e-3',
-    'u': 'e-6',
-    'n': 'e-9',
-    'p': 'e-12',
-    'f': 'e-15',
-    'a': 'e-18',
-    'z': 'e-21',
-    'k': 'e3',
-    'M': 'e6',
-    'G': 'e9',
-    'T': 'e12',
-    'P': 'e15',
-    'E': 'e18',
-    'nan': ''
-}
 
 CWD = os.getcwd()
 PROJ_DIR = os.path.dirname(os.path.realpath(__file__))
@@ -84,30 +69,9 @@ List of available PLOTs:''')
     sys.exit(exitcode)
 
 
-def query(prompt=None, default=None):
-    '''Wait for user to input a y/n, with support for default'''
-
-    valid = {'yes': True, 'y': True, 'ye': True, 'no': False, 'n': False}
-
-    if default is None:
-        sel = ' [y/n] '
-    elif default == 'yes':
-        sel = ' [Y/n] '
-    elif default == 'no':
-        sel = ' [y/N] '
-    else:
-        raise ValueError(f'Invalid default answer: {default}')
-
-    while True:
-        response = input(prompt + sel)
-        if (default is not None) and len(response) == 0:
-            return valid[default]
-        elif response.lower() in valid:
-            return valid[response.lower()]
-
-
 def log(kwargs, df):
-    time = f'{datetime.now().strftime("%Y-%m-%dT%H:%M:%S")}'
+    time = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
+
     if LOG == 'none':
         return time
     elif LOG:
@@ -125,11 +89,11 @@ def log(kwargs, df):
         return time
 
     if SUMMARY:
-        ingest = 'Summary'
+        ingest_type = 'Summary'
     elif RAW:
-        ingest = 'Raw'
+        ingest_type = 'Raw'
     else:
-        ingest = 'Wave'
+        ingest_type = 'Wave'
 
     fout.write(f'cadence_plot ver. {VERSION}\n')
     fout.write(f'Executed on {time.split("T")[0]} at {time.split("T")[1]}\n')
@@ -138,7 +102,7 @@ def log(kwargs, df):
     fout.write(f'Input file: {INPUT}\n')
     fout.write(f'Plot function: {PLOT}\n')
     fout.write(f'''Arguments:
-    Data ingest type: {ingest}
+    Data ingest type: {ingest_type}
     Verbose: {VERBOSE}
     Interactive: {INTERACT}
     Export file: {EXPORT}
@@ -157,146 +121,17 @@ def log(kwargs, df):
     return time
 
 
-def export_kwargs(kwargs, filename):
-    time = f'{datetime.now().strftime("%Y-%m-%dT%H:%M:%S")}'
-
-    allow = query(f'Overwrite {filename}?',
-                  'yes') if os.path.isfile(filename) else True
-
-    if not allow:
-        return
-
-    try:
-        fout = open(filename, 'w')
-    except Exception as e:
-        print(
-            f'ERROR: Could not open export file `{filename}` for writing ({e})',
-            file=sys.stderr)
-        return
-
-    fout.write(f'# cadence_plot ver. {VERSION}\n')
-    fout.write(
-        f'# Automatically generated on {time.split("T")[0]} at {time.split("T")[1]}\n'
-    )
-    fout.write('#' * 80 + '\n\n')
-
-    for kwarg in kwargs:
-        try:
-            fout.write(kwarg.split('=')[0] + '=' + kwarg.split('=')[1] + '\n')
-        except Exception as e:
-            print(f'ERROR: Misformed kwarg `{kwarg}` ({e})', file=sys.stderr)
-
-    fout.close()
-    return
-
-
-def v_print(string, file=sys.stdout):
-    if VERBOSE:
-        print(string, file=file)
-
-
-def ingest_wave(filename):
-    check_filetype(filename)
-
-    df_in = pd.read_csv(filename)
-    x = df_in.iloc[:, 0]
-
-    num = len(np.unique([item.split()[0] for item in df_in.columns]))
-    series = len(df_in.columns) // 2 // num
-    df = pd.DataFrame(np.tile(np.array(x).astype(float), series).T,
-                      columns=['x'])
-
-    for i in range(num):
-        df_fill = pd.DataFrame()
-
-        for label, content in df_in.iloc[:, (2 * i * series + 1):(2 * i * series + 1 + series):2].iteritems():
-            wave = label.split()[0].strip('/')
-            param = list()
-
-            if attr := re.findall(r".+ \((.*)\) .+", label):
-                param = attr[0].split(",")
-
-            d_fill = pd.DataFrame(np.array([content.astype(float)]).T,
-                                  columns=[wave])
-            for term in param:
-                d_fill[term.split('=')[0]] = np.repeat(
-                    float(term.split('=')[1]), len(d_fill[wave]))
-
-            df_fill = pd.concat([df_fill, d_fill], axis=0, ignore_index=True)
-
-        df = pd.concat([df, df_fill], axis=1)
-
-    return df.loc[:, ~df.columns.duplicated()].copy()
-
-
-def si_convert(df, columns):
-    for col in df:
-        repl = np.unique(df[col].str.extract(r'([a-zA-Z])').astype(str))
-
-        for item in repl:
-            df[col] = df[col].str.replace(item, SI[item], regex=False, case=True)
-
-    df.columns = columns
-
-    return df
-
-
-def input_list():
-    contents = list()
-
-    while True:
-        try:
-            line = input()
-            contents.append(re.sub(r'\s+=\s+', '=', line.strip()))
-        except EOFError or KeyboardInterrupt:
-            break
-
-    return contents
-
-
-def check_filetype(filename):
-    if os.path.splitext(filename)[-1] != '.csv':
-        print('ERROR: Input file must be .csv', file=sys.stderr)
-        sys.exit(3)
-
-
-def ingest_summary(filename):
-    check_filetype(filename)
-
-    df_in = pd.read_csv(filename)
-    param = df_in.loc[df_in["Point"].str.contains("Parameters"), "Point"]
-
-    df = pd.DataFrame(
-        param.str.findall(r"[0-9a-z\.-]+=([0-9a-z\.-]*)").to_list())
-
-    df = si_convert(df, re.findall(r"([0-9a-z\.-]+)=[0-9a-z\.-]+", param[0]))
-    df = df.astype(float)
-    outputs = df_in.loc[df_in["Point"] == "1", "Output"]
-
-    for output in outputs:
-        d_fill = pd.DataFrame(
-            np.array(
-                df_in[df_in["Output"] == output]["Nominal"].astype(float)).T,
-            columns=[output],
-        )
-        df = pd.concat([df, d_fill], axis=1)
-
-    return df
-
-
 # Main execution
 
 if __name__ == '__main__':
     # Create default directories
     if not os.path.isdir(os.path.join(PROJ_DIR, 'plots')):
-        allow = query('Default `plots` directory does not exist, create it?',
-                      'yes')
+        allow = tools.query('Default `plots` directory does not exist, create it?', 'yes')
         if allow:
             os.mkdir(os.path.join(PROJ_DIR, 'plots'))
 
     if not os.path.isdir(os.path.join(PROJ_DIR, 'logs')):
-        allow = query('Default `logs` directory does not exist, create it?',
-                      'yes')
+        allow = tools.query('Default `logs` directory does not exist, create it?', 'yes')
         if allow:
             os.mkdir(os.path.join(PROJ_DIR, 'logs'))
 
@@ -355,12 +190,12 @@ if __name__ == '__main__':
 
     # Ingest data
     if SUMMARY:
-        df = ingest_summary(INPUT)
+        df = ingest.ingest_summary(INPUT)
     elif RAW:
-        check_filetype(INPUT)
+        tools.check_filetype(INPUT)
         df = pd.read_csv(INPUT)
     else:
-        df = ingest_wave(INPUT)
+        df = ingest.ingest_wave(INPUT)
 
     # Concatenate kwargs with external kwargs
     if KWARGS:
@@ -374,7 +209,7 @@ if __name__ == '__main__':
         print('Ingested data:')
         print(df)
         print('\n' + '-' * 30 + ' kwarg editor ' + '-' * 30)
-        kwargs += input_list()
+        kwargs += tools.input_list()
 
     # Export kwargs
     if EXPORT:

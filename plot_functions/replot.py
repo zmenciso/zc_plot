@@ -2,7 +2,7 @@
 # Intelligent MicroSystems Lab
 
 # from plot_functions import test
-from cadence_plot import query
+from src import tools
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
@@ -51,7 +51,7 @@ File
     filename=str    fn=str      Custom filename''')
 
 
-def draw(y, df, cmap, param):
+def draw(y, df, cmap):
     if 'line' in param['ptype']:
         ax = sns.lineplot(data=df,
                           x=param['x'],
@@ -127,6 +127,57 @@ def draw(y, df, cmap, param):
     return ax
 
 
+def draw_legend():
+    if param['bbox'] != 'none' and (
+            param['hue'] or param['style']) and 'heat' not in param['ptype']:
+
+        handles, labels = plt.gca().get_legend_handles_labels()
+
+        if len(param['y']) > 1:
+            for index, wave in enumerate(param['y']):
+                for i in range(index, len(labels), len(param['y'])):
+                    labels[i] = f'{wave} ' + labels[i]
+
+        if param['bbox'] == 'center':
+            plt.legend(handles,
+                       labels,
+                       loc='upper center',
+                       bbox_to_anchor=(.5, 1.25),
+                       ncol=len(handles),
+                       title=param['ltitle']
+                       if param['ltitle'].lower() != 'none' else None,
+                       borderaxespad=0)
+
+        else:
+            plt.legend(handles,
+                       labels,
+                       loc='upper left',
+                       bbox_to_anchor=(1.02, 1),
+                       title=param['ltitle']
+                       if param['ltitle'].lower() != 'none' else None,
+                       borderaxespad=0)
+
+
+def draw_labels(ax):
+    # Label axes
+    plt.xlabel(param['xlabel'])
+    plt.ylabel(param['ylabel'])
+
+    # Set axes limits
+    if param['xlim']:
+        param['xlim'] = tuple(map(float, param['xlim'].strip('()').split(',')))
+        plt.xlim(param['xlim'])
+    if param['ylim']:
+        param['ylim'] = tuple(map(float, param['ylim'].strip('()').split(',')))
+        plt.ylim(param['ylim'])
+    if param['logx']:
+        ax.set_xscale('log')
+    if param['logy']:
+        ax.set_yscale('log')
+
+    return ax
+
+
 def key_expander(key):
     conversion = {
         'h': 'hue',
@@ -155,7 +206,54 @@ def key_expander(key):
     return conversion[key] if key in conversion else key
 
 
+def augment_param():
+    # Fix data types
+    param['y'] = param['y'].strip('{[()]}').split(',')
+    param['palette'] = param['palette'].strip('{[()]}').split(',')
+    param['figsize'] = tuple(
+        map(float, param['figsize'].strip('{[()]}').split(',')))
+    param['alpha'] = float(param['alpha'])
+    param['width'] = float(param['width']) if param['width'] else None
+    param['ci'] = float(param['ci'])
+    param['logy'] = bool(param['logy'])
+    param['logx'] = bool(param['logx'])
+    param['fill'] = bool(param['fill'])
+    param['bins'] = int(param['bins'])
+    param['xscale'] = float(param['xscale'])
+    param['yscale'] = float(param['yscale'])
+    param['hscale'] = float(param['hscale'])
+    param['sscale'] = float(param['sscale'])
+    param['ptype'] = param['ptype'].lower()
+
+    # Set labels
+    if not param['ylabel']:
+        param['ylabel'] = param['y'][0]
+    if not param['xlabel']:
+        param['xlabel'] = param['x']
+
+    # Set legend title
+    if not param['ltitle']:
+        param['ltitle'] = f"{param['hue']}/{param['style']}" if param[
+            'style'] else param['hue']
+
+    return param
+
+
+def rescale(df):
+    if param['xscale'] != 1:
+        df[param['x']] = df[param['x']] * param['xscale']
+    if param['yscale'] != 1:
+        df[param['y']] = df[param['y']] * param['yscale']
+    if param['hscale'] != 1:
+        df[param['hue']] = df[param['hue']] * param['hscale']
+    if param['sscale'] != 1:
+        df[param['size']] = df[param['size']] * param['sscale']
+
+    return df
+
+
 def plot(df, kwargs):
+    global param
     param = {
         'figsize': '6,3',
         'alpha': 0.8,
@@ -196,112 +294,35 @@ def plot(df, kwargs):
         key = key_expander(key)
         param[key] = value
 
-    # Fix data types
-    param['y'] = param['y'].strip('{[()]}').split(',')
-    param['palette'] = param['palette'].strip('{[()]}').split(',')
-    param['figsize'] = tuple(
-        map(float, param['figsize'].strip('{[()]}').split(',')))
-    param['alpha'] = float(param['alpha'])
-    param['width'] = float(param['width']) if param['width'] else None
-    param['ci'] = float(param['ci'])
-    param['logy'] = bool(param['logy'])
-    param['logx'] = bool(param['logx'])
-    param['fill'] = bool(param['fill'])
-    param['bins'] = int(param['bins'])
-    param['xscale'] = float(param['xscale'])
-    param['yscale'] = float(param['yscale'])
-    param['hscale'] = float(param['hscale'])
-    param['sscale'] = float(param['sscale'])
-    param['ptype'] = param['ptype'].lower()
+    # Fix param variable types
+    param = augment_param()
 
-    # Set labels
-    if not param['ylabel']:
-        param['ylabel'] = param['y'][0]
-    if not param['xlabel']:
-        param['xlabel'] = param['x']
-
-    # Set legend title
-    if not param['ltitle']:
-        param['ltitle'] = f"{param['hue']}/{param['style']}" if param[
-            'style'] else param['hue']
-
+    # Set figure size and type
     plt.figure(figsize=param['figsize'])
+    sns.set_style(param['axes'])
+    sns.set_context(param['context'])
 
     # Change hue column to floats
     if param['hue']:
         df[param['hue']] = df[param['hue']].astype(float)
 
-    sns.set_style(param['axes'])
-    sns.set_context(param['context'])
-
-    # Rescale (avoid multiplication if unnecessary)
-    if param['xscale'] != 1:
-        df[param['x']] = df[param['x']] * param['xscale']
-    if param['yscale'] != 1:
-        df[param['y']] = df[param['y']] * param['yscale']
-    if param['hscale'] != 1:
-        df[param['hue']] = df[param['hue']] * param['hscale']
-    if param['sscale'] != 1:
-        df[param['size']] = df[param['size']] * param['sscale']
-
-    # test.debug(param, df)
+    # Rescale (avoid multiplication duplication if possible)
+    df = rescale(df)
 
     # Draw plots!
     for index, y in enumerate(param['y']):
         palette = param['palette'][index % len(param['palette'])]
         cmap = sns.color_palette(palette, as_cmap=True)
-        ax = draw(y, df, cmap, param)
+        ax = draw(y, df, cmap)
 
-    plt.xlabel(param['xlabel'])
-    plt.ylabel(param['ylabel'])
-
-    if param['xlim']:
-        param['xlim'] = tuple(map(float, param['xlim'].strip('()').split(',')))
-        plt.xlim(param['xlim'])
-    if param['ylim']:
-        param['ylim'] = tuple(map(float, param['ylim'].strip('()').split(',')))
-        plt.ylim(param['ylim'])
-
-    if param['logx']:
-        ax.set_xscale('log')
-    if param['logy']:
-        ax.set_yscale('log')
-
-    if param['bbox'] != 'none' and (
-            param['hue'] or param['style']) and 'heat' not in param['ptype']:
-
-        handles, labels = plt.gca().get_legend_handles_labels()
-
-        if len(param['y']) > 1:
-            for index, wave in enumerate(param['y']):
-                for i in range(index, len(labels), len(param['y'])):
-                    labels[i] = f'{wave} ' + labels[i]
-
-        if param['bbox'] == 'center':
-            plt.legend(handles,
-                       labels,
-                       loc='upper center',
-                       bbox_to_anchor=(.5, 1.25),
-                       ncol=len(handles),
-                       title=param['ltitle']
-                       if param['ltitle'].lower() != 'none' else None,
-                       borderaxespad=0)
-
-        else:
-            plt.legend(handles,
-                       labels,
-                       loc='upper left',
-                       bbox_to_anchor=(1.02, 1),
-                       title=param['ltitle']
-                       if param['ltitle'].lower() != 'none' else None,
-                       borderaxespad=0)
-
+    ax = draw_labels(ax)
+    draw_legend()
     plt.tight_layout()
 
+    # Write out
     if param['filename']:
         filename = param['filename'] + '.' + param['filetype']
-        allow = query(f'Overwrite {filename}?',
-                      'yes') if os.path.isfile(filename) else True
+        allow = tools.query(f'Overwrite {filename}?', 'yes') if os.path.isfile(filename) else True
         if allow:
             plt.savefig(filename)
     else:
