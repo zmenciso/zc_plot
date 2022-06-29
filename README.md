@@ -53,30 +53,15 @@ List of available PLOTs:
 INPUT must be a valid CSV, e.g. `data/my_data.csv`.
 ```
 
-To provide a multi-word keyword argument, either enclose the entire kwarg
-definition in quotes or just the value, e.g.:
+Kwargs can also be loaded from an external file by using the `-k` or `--kwargs`
+switch.  This file must be **line-delimited** and lines starting with `#` will
+be treated as comments.  When using an external file, any CLI kwargs will always
+be **appended after the external kwargs**.
 
-```bash
-./cadence_plot.py replot data.csv 'xlabel=Time [s]'
-```
-
-**OR**
-
-```bash
-./cadence_plot.py replot data.csv xlabel='Time [s]'
-```
-
-Or, start the script in **interactive mode** with the `-i` or `--interact`
-switch, which previews the parsed data and opens a kwarg editor (no quotes
-needed).  This tool is especially powerful when combined with the `-x` or
-`--export` switch, which saves the current kwargs to a properly-formatted text
-file.
-
-To load kwargs from an external file, use the `-k` or `--kwargs` switch.  This
-file must be **line-delimited** and lines starting with `#` will be treated as
-comments.  When using an external file, it is **not** necessary to enclose
-external multi-word kwargs in quotes, and any CLI kwargs will always be
-**appended after the external kwargs**.
+Alternatively, using **interactive mode** (`-i` or `--interact`) previews the
+parsed data and opens a kwarg editor.  This is especially powerful when combined
+with the `-x` or `--export` switch, which saves the current kwargs to a
+properly-formatted text file.
 
 ### Replot
 
