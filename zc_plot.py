@@ -11,6 +11,7 @@ import subprocess
 import pandas as pd
 from src import ingest
 from src import tools
+from src import logging
 from datetime import datetime
 
 # Globals
@@ -213,7 +214,7 @@ if __name__ == '__main__':
 
     # Export kwargs
     if EXPORT:
-        export_kwargs(kwargs, EXPORT)
+        logging.export_kwargs(kwargs, EXPORT, VERSION)
 
     # Log and plot!
     time = log(kwargs, df)
