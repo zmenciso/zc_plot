@@ -63,6 +63,9 @@ parsed data and opens a kwarg editor.  This is especially powerful when combined
 with the `-x` or `--export` switch, which saves the current kwargs to a
 properly-formatted text file.
 
+> _Pro tip:_ The `csv_dump` function turns this tool into a Cadence-to-csv
+> parser.
+
 ### Replot
 
 The most versatile of the plotting functions is `replot`, which accepts either a
