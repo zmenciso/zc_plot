@@ -62,4 +62,4 @@ def ingest_summary(filename):
         )
         df = pd.concat([df, d_fill], axis=1)
 
-    return df
+    return df.dropna(axis=1, how='all')
