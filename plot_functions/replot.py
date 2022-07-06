@@ -134,8 +134,9 @@ def draw_legend():
         handles, labels = plt.gca().get_legend_handles_labels()
 
         if len(param['y']) > 1:
+            r = len(labels) // len(param['y'])
             for index, wave in enumerate(param['y']):
-                for i in range(index, len(labels), len(param['y'])):
+                for i in range(index * r, index * r + r):
                     labels[i] = f'{wave} ' + labels[i]
 
         if param['bbox'] == 'center':
@@ -311,6 +312,7 @@ def plot(df, kwargs):
 
     # Draw plots!
     for index, y in enumerate(param['y']):
+        y = y.strip()
         palette = param['palette'][index % len(param['palette'])]
         cmap = sns.color_palette(palette, as_cmap=True)
         ax = draw(y, df, cmap)
@@ -327,7 +329,7 @@ def plot(df, kwargs):
             plt.savefig(filename)
     else:
         y = re.sub('/', '-', '+'.join(param['y']))
-        filename = f'./plots/{y}_' + param['time']
-        plt.savefig(f'{filename}.{param["filetype"]}')
+        filename = f'./plots/{y}_' + f"{param['time']}.{param['filetype']}"
+        plt.savefig(f'{filename}')
 
-    print(f'Output:  {os.path.realpath(filename)}.{param["filetype"]}')
+    print(f'Output:  {os.path.realpath(filename)}')
