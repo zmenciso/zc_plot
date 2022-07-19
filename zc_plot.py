@@ -12,6 +12,7 @@ import pandas as pd
 from src import ingest
 from src import tools
 from src import logging
+from src import text
 from datetime import datetime
 
 # Globals
@@ -40,35 +41,13 @@ INPUT = None
 KWARGS = None
 EXPORT = None
 LOG = None
-VERBOSE = False
+VERBOSE = True
 SUMMARY = False
 RAW = False
 INTERACT = False
 
+
 # Functions
-
-
-def usage(exitcode):
-    print(f'''{sys.argv[0]} [options] PLOT INPUT [kwargs]
-    -h  --help      [PLOT]  Display this message or PLOT usage
-    -k  --kwargs    FILE    Load additional external kwargs from FILE
-    -x  --export    FILE    Exports the current kwargs to FILE
-    -l  --log       FILE    Change default logfile name (or 'none' to disable)
-    -i  --interact          View data ingest before setting kwargs
-    -v  --verbose           Enable verbose output
-    -s  --summary           Feed in summary data instead of a waveform
-    -r  --raw               Feed in a raw .csv file instead of a waveform
-
-List of available PLOTs:''')
-
-    for func in os.scandir(FUNC_DIR):
-        if func.is_file() and os.path.splitext(entry)[-1] == '.py':
-            print(f'    {os.path.splitext(os.path.basename(func))[0]}')
-
-    print('\nINPUT must be a valid CSV, e.g. `data/my_data.csv`.')
-
-    sys.exit(exitcode)
-
 
 def log(kwargs, df):
     time = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
@@ -137,6 +116,7 @@ if __name__ == '__main__':
             os.mkdir(os.path.join(PROJ_DIR, 'logs'))
 
     # Parse command line options
+    # TODO: Change this to argparse
     args = sys.argv[1:]
 
     while len(args) and args[0].startswith('-'):
@@ -146,9 +126,12 @@ if __name__ == '__main__':
                 eval(f'{args[0]}.usage()')
                 sys.exit(0)
             else:
-                usage(0)
-        elif args[0] == '-v' or args[0] == '--verbose':
-            VERBOSE = True
+                text.usage(0, FUNC_DIR)
+        elif args[0] == '-q' or args[0] == '--quiet':
+            VERBOSE = False
+        elif args[0] == '-v' or args[0] == '--version':
+            print(f'Version {VERSION}') if VERSION else print('UNKNOWN VERSION')
+            exit(0)
         elif args[0] == '-s' or args[0] == '--summary':
             SUMMARY = True
         elif args[0] == '-i' or args[0] == '--interact':
@@ -163,14 +146,14 @@ if __name__ == '__main__':
             LOG = args.pop(1)
         else:
             print('ERROR: Not a valid option `{args[0]}`\n', file=sys.stderr)
-            usage(1)
+            text.usage(1, FUNC_DIR)
 
         args.pop(0)
 
     # Missing arguments
     if len(args) < 2:
         print('ERROR: Not enough arguments\n', file=sys.stderr)
-        usage(2)
+        text.usage(2, FUNC_DIR)
 
     else:
         PLOT = args.pop(0)
@@ -207,9 +190,7 @@ if __name__ == '__main__':
 
     # Interactive mode
     if INTERACT:
-        print('Ingested data:')
-        print(df)
-        print('\n' + '-' * 30 + ' kwarg editor ' + '-' * 30)
+        text.interactive_print(df)
         kwargs += tools.input_list()
 
     # Export kwargs
@@ -218,6 +199,8 @@ if __name__ == '__main__':
 
     # Log and plot!
     time = log(kwargs, df)
-    kwargs = [f'time={time}'] + kwargs
+    kwargs = [f'time={time}', f'version={VERSION}'] + kwargs
+
+    exec(f'from {os.path.basename(FUNC_DIR)} import {PLOT}')
     eval(f'{PLOT}.plot(df, kwargs)')
     sys.exit(0)
