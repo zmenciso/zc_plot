@@ -1,6 +1,6 @@
 #   ZC Plot, a Cadence Plotting Utility
 
-_Zephan M. Enciso_
+_Zephan M. Enciso_  
 _Intelligent MicroSystems Lab_
 
 ![Example 0](./samples/sample0.svg)
