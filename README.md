@@ -1,7 +1,7 @@
-#   Cadence Plotting Utility
+#   ZC Plot, a Cadence Plotting Utility
 
-Zephan M. Enciso  
-Intelligent MicroSystems Lab  
+_Zephan M. Enciso_
+_Intelligent MicroSystems Lab_
 
 ![Example 0](./samples/sample0.svg)
 ![Example 1](./samples/sample1.svg)
@@ -34,21 +34,22 @@ your data as a `.csv` file.  Make sure to enable the "Interpolate" option so
 each waveform has the same time axis.  Then, invoke the main script as follows:
 
 ```
-./cadence_plot.py [options] PLOT INPUT [kwargs]
-    -h  --help      [PLOT]  Display this message or PLOT usage
-    -k  --kwargs    FILE    Load additional external kwargs from FILE
-    -x  --export    FILE    Exports the current kwargs to FILE
-    -l  --log       FILE    Change default logfile name (or 'none' to disable)
-    -i  --interact          View data ingest before settings kwargs
-    -v  --verbose           Enable verbose output
+./zc_plot.py [options] PLOT INPUT [kwargs]
+    -h  --help      [PLOT]  Display this message or usage for PLOT
+    -k  --kwargs     FILE   Load additional external kwargs from FILE
+    -x  --export     FILE   Exports the current kwargs to FILE
+    -l  --log        FILE   Change default logfile name (or 'none' to disable)
     -s  --summary           Feed in summary data instead of a waveform
     -r  --raw               Feed in a raw .csv file instead of a waveform
+    -i  --interact          View data ingest before setting kwargs
+    -q  --quiet             Surpress verbose output
+    -v  --version           Print version string
 
 List of available PLOTs:
     inputrefnoise
     replot
     gmid
-    ...
+    etc. etc. etc.
 
 INPUT must be a valid CSV, e.g. `data/my_data.csv`.
 ```
