@@ -48,7 +48,9 @@ Drawing
     multiple=str                Change multiple behavior (default: 'layer')
 File
     filetype=str    ft=str      Change filetype (default: 'svg')
-    filename=str    fn=str      Custom filename''')
+    filename=str    fn=str      Custom filename
+
+Spaces in expression/signal names are not supported!''')
 
 
 def draw(y, df, cmap):
@@ -209,8 +211,8 @@ def key_expander(key):
 
 def augment_param():
     # Fix data types
-    param['y'] = param['y'].strip('{[()]}').split(',')
-    param['palette'] = param['palette'].strip('{[()]}').split(',')
+    param['y'] = re.sub(r'\s+', '', param['y']).strip('{[()]}').split(',')
+    param['palette'] = re.sub(r'\s+', '', param['palette']).strip('{[()]}').split(',')
     param['figsize'] = tuple(
         map(float, param['figsize'].strip('{[()]}').split(',')))
     param['alpha'] = float(param['alpha'])
@@ -312,7 +314,6 @@ def plot(df, kwargs):
 
     # Draw plots!
     for index, y in enumerate(param['y']):
-        y = y.strip()
         palette = param['palette'][index % len(param['palette'])]
         cmap = sns.color_palette(palette, as_cmap=True)
         ax = draw(y, df, cmap)
