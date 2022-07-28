@@ -25,16 +25,8 @@ LOG_DIR = os.path.join(PROJ_DIR, 'logs')
 try:
     VERSION = subprocess.check_output(['git', 'rev-parse', '--short',
                                        'HEAD']).decode('ascii').strip()
-except Exception:
-    VERSION = 'UNKNOWN'
-
-# Import all plot functions
-# TODO: Only import invoked function
-for entry in os.scandir(FUNC_DIR):
-    if entry.is_file() and os.path.splitext(entry)[-1] == '.py':
-        exec(
-            f'from {os.path.basename(FUNC_DIR)} import {os.path.splitext(os.path.basename(entry))[0]}'
-        )
+except Exception as e:
+    VERSION = f'UNKNOWN ({e})'
 
 PLOT = None
 INPUT = None
@@ -50,6 +42,7 @@ INTERACT = False
 # Functions
 
 def log(kwargs, df):
+    ''' Write logfile '''
     time = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
 
     if LOG == 'none':
@@ -161,7 +154,7 @@ if __name__ == '__main__':
         kwargs = args
 
     # Check plot function, input file, external kwargs
-    if PLOT not in ' '.join(os.listdir(FUNC_DIR)):
+    if PLOT not in ' '.join(os.listdir(FUNC_DIR)) or not os.path.isfile(os.path.join(FUNC_DIR, f'{PLOT}.py')):
         print(f'ERROR: {PLOT} is not a valid function', file=sys.stderr)
         sys.exit(101)
     if not os.path.isfile(INPUT):
@@ -196,6 +189,9 @@ if __name__ == '__main__':
     # Export kwargs
     if EXPORT:
         logging.export_kwargs(kwargs, EXPORT, VERSION)
+
+    # Import plot function
+    exec(f'from {os.path.basename(FUNC_DIR)} import {PLOT}')
 
     # Log and plot!
     time = log(kwargs, df)

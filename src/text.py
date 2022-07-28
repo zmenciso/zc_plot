@@ -13,6 +13,7 @@ banner = ''' _________   ____  _       _
 
 
 def bar(header=None, length=80):
+    ''' Return a bar with header centered in it '''
     output = '\n'
 
     if header:
@@ -32,6 +33,7 @@ def interactive_print(df):
 
 
 def usage(exitcode, func_dir):
+    ''' Print usage to stdout '''
     print(banner)
 
     print(f'''
@@ -40,11 +42,11 @@ def usage(exitcode, func_dir):
     -k  --kwargs     FILE   Load additional external kwargs from FILE
     -x  --export     FILE   Exports the current kwargs to FILE
     -l  --log        FILE   Change default logfile name (or 'none' to disable)
+    -s  --summary           Feed in summary data instead of a waveform
+    -r  --raw               Feed in a raw .csv file instead of a waveform
     -i  --interact          View data ingest before setting kwargs
     -q  --quiet             Surpress verbose output
     -v  --version           Print version string
-    -s  --summary           Feed in summary data instead of a waveform
-    -r  --raw               Feed in a raw .csv file instead of a waveform
 
 List of available PLOTs:''')
 
