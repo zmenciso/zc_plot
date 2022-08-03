@@ -4,6 +4,7 @@
 
 import os
 import sys
+import re
 
 banner = ''' _________   ____  _       _   
 |__  / ___| |  _ \| | ___ | |_ 
@@ -24,12 +25,18 @@ def bar(header=None, length=80):
     return output
 
 
-def interactive_print(df):
+def print_kwargs(kwargs):
+    for kwarg in kwargs:
+        print(re.sub('=', ' = ', kwarg))
+
+
+def interactive_print(df, kwargs):
     print(banner)
     print(bar())
     print('Ingested data:')
     print(df)
     print(bar('Kwarg Editor'))
+    print_kwargs(kwargs)
 
 
 def usage(exitcode, func_dir):

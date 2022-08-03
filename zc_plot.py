@@ -183,7 +183,7 @@ if __name__ == '__main__':
 
     # Interactive mode
     if INTERACT:
-        text.interactive_print(df)
+        text.interactive_print(df, kwargs)
         kwargs += tools.input_list()
 
     # Export kwargs
