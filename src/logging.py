@@ -32,11 +32,15 @@ def export_kwargs(kwargs, filename, version):
     )
     print('#' * 80 + '\n', file=fout)
 
+    param = dict()
     for kwarg in kwargs:
         try:
-            print(kwarg.split('=')[0] + '=' + kwarg.split('=')[1], file=fout)
+            param[kwarg.split('=')[0]] = kwarg.split('=')[1]
         except Exception as e:
             print(f'ERROR: Misformed kwarg `{kwarg}` ({e})', file=sys.stderr)
+
+    for key, value in param.items():
+        print(f'{key} = {value}', file=fout)
 
     fout.close()
 
