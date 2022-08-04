@@ -13,7 +13,7 @@ banner = ''' _________   ____  _       _
 /____\____| |_|   |_|\___/ \__|'''
 
 
-def bar(header=None, length=80):
+def bar(header=None, length=os.get_terminal_size()[0]):
     ''' Return a bar with header centered in it '''
     output = '\n'
 
