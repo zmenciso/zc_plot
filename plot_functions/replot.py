@@ -90,7 +90,7 @@ def draw(y, df, cmap):
 
     elif 'heat' in param['ptype']:
         # TODO: Rounding is cringe, remove it
-        # TODO: Support for vlim
+        # TODO: Support for vmin, vmax
         if not param['hue'] or param['size'] or param['style']:
             print('ERROR: heamap must have only x, y, and hue defined',
                   file=sys.stderr)
@@ -273,7 +273,7 @@ def plot(df, kwargs):
         'axes': 'whitegrid',
         'context': 'notebook',
         'palette': 'crest',
-        'x': 'x',
+        'x': df.columns[0],
         'y': df.columns[1],
         'hue': None,
         'style': None,
