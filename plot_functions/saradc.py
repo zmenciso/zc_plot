@@ -45,12 +45,11 @@ def plot(df, kwargs):
         param[key] = value
 
     param['prom'] = float(param['prom'])
+    param['height'] = float(param['height']) if param['height'] else param['prom']
     param['inl'] = bool(param['inl'])
     param['dnl'] = bool(param['dnl'])
     param['tail'] = int(param['tail'])
     param['bits'] = int(param['bits'])
-    if not param['height']:
-        param['height'] = param['prom']
 
     codes = list()
 
@@ -59,12 +58,18 @@ def plot(df, kwargs):
         wave = df.loc[df[param['var']] == var, [param['comp']]].squeeze()
 
         # Find peaks
-        pos = signal.find_peaks(wave, prominence=param['prom'], height=param['height'])
-        neg = signal.find_peaks(wave * -1, prominence=param['prom'], height=param['height'])
+        pos = signal.find_peaks(wave,
+                                prominence=param['prom'],
+                                height=param['height'])
+        neg = signal.find_peaks(wave * -1,
+                                prominence=param['prom'],
+                                height=param['height'])
 
         # Check bitwidth == number of peaks found
         if param['bits'] and len(pos[0]) + len(neg[0]) != param['bits']:
-            print(f'ERROR: Failed to decode wave ({len(pos[0])}+ {len(neg[0])}-)', file=sys.stderr)
+            print(
+                f'ERROR: Failed to decode {param["var"]} = {var} ({len(pos[0])}+ {len(neg[0])}-)',
+                file=sys.stderr)
             continue
 
         peaks = {key: "+" for key in pos[0]} | {key: "-" for key in neg[0]}
@@ -73,7 +78,7 @@ def plot(df, kwargs):
         code = 0
         for i, (time, sign) in enumerate(sorted(peaks.items())):
             if sign == "+":
-                code = code + (2 ** (len(peaks) - 1 - i))
+                code = code + (2**(len(peaks) - 1 - i))
 
         codes.append((var, code))
 
@@ -81,10 +86,15 @@ def plot(df, kwargs):
     df_out['code'] = df_out['code'].astype(int)
 
     if param['dnl']:
-        df_out['dnl'] = np.append(np.array(df_out["code"][1:]) - np.array(df_out["code"][0:-1]), np.nan)
+        df_out['dnl'] = np.append(
+            np.array(df_out["code"][1:]) - np.array(df_out["code"][0:-1]),
+            np.nan)
         df_out['abs_dnl'] = np.abs(df_out['dnl'])
         if param['tail']:
-            print(df_out.sort_values("abs_dnl", ascending=False)[[param["var"], "dnl"]][0:param['tail']])
+            print(
+                df_out.sort_values("abs_dnl",
+                                   ascending=False)[[param["var"],
+                                                     "dnl"]][0:param['tail']])
 
     if param['inl'] and param['bits']:
         vmax = np.max(df[param['var']])
@@ -92,8 +102,8 @@ def plot(df, kwargs):
         codespace = np.linspace(vmin, vmax, num=2**param['bits'])
         df_out['inl'] = [codespace[int(i)] for i in df_out["code"]]
     elif param['inl']:
-        print('ERROR: Bitwidth not specified; cannot compute INL', file=sys.stderr)
+        print('ERROR: Bitwidth not specified; cannot compute INL',
+              file=sys.stderr)
 
     # Call replot
-    kwargs.append(f'x={param["var"]}')
     replot.plot(df_out, kwargs)
