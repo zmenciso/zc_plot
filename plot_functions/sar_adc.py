@@ -13,7 +13,7 @@ from plot_functions import replot
 
 
 def usage():
-    print(f'{sys.argv[0]} [options] replot INPUT [kwargs]')
+    print(f'{sys.argv[0]} [options] sar_adc INPUT [kwargs]')
     print('''
     time=str        Specify time signal (default: first column)
     comp=str        Specify comparator wave signal (default: second column)

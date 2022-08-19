@@ -34,9 +34,8 @@ KWARGS = None
 EXPORT = None
 LOG = None
 VERBOSE = True
-SUMMARY = False
-RAW = False
 INTERACT = False
+FILETYPE = 'wave'
 
 
 # Functions
@@ -61,13 +60,6 @@ def log(kwargs, df):
               file=sys.stderr)
         return time
 
-    if SUMMARY:
-        ingest_type = 'Summary'
-    elif RAW:
-        ingest_type = 'Raw'
-    else:
-        ingest_type = 'Wave'
-
     fout.write(f'cadence_plot ver. {VERSION}\n')
     fout.write(f'Executed on {time.split("T")[0]} at {time.split("T")[1]}\n')
     fout.write('-' * 80 + '\n\n')
@@ -75,7 +67,7 @@ def log(kwargs, df):
     fout.write(f'Input file: {INPUT}\n')
     fout.write(f'Plot function: {PLOT}\n')
     fout.write(f'''Arguments:
-    Data ingest type: {ingest_type}
+    Data ingest type: {FILETYPE.upper()}
     Verbose: {VERBOSE}
     Interactive: {INTERACT}
     Export file: {EXPORT}
@@ -125,12 +117,10 @@ if __name__ == '__main__':
         elif args[0] == '-v' or args[0] == '--version':
             print(f'Version {VERSION}') if VERSION else print('UNKNOWN VERSION')
             exit(0)
-        elif args[0] == '-s' or args[0] == '--summary':
-            SUMMARY = True
+        elif args[0] == '-t' or args[0] == '--type':
+            FILETYPE = args.pop(1).lower()
         elif args[0] == '-i' or args[0] == '--interact':
             INTERACT = True
-        elif args[0] == '-r' or args[0] == '--raw':
-            RAW = True
         elif args[0] == '-k' or args[0] == '--kwargs':
             KWARGS = args.pop(1)
         elif args[0] == '-x' or args[0] == '--export':
@@ -166,11 +156,13 @@ if __name__ == '__main__':
         sys.exit(103)
 
     # Ingest data
-    if SUMMARY:
+    if 'sum' in FILETYPE:
         df = ingest.ingest_summary(INPUT)
-    elif RAW:
+    elif 'raw' in FILETYPE:
         tools.check_filetype(INPUT)
         df = pd.read_csv(INPUT)
+    elif 'mc' in FILETYPE:
+        df = ingest.ingest_wave_mc(INPUT)
     else:
         df = ingest.ingest_wave(INPUT)
 

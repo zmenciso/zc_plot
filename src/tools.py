@@ -81,3 +81,31 @@ def input_list():
         contents.append(re.sub(r'\s+=\s+', '=', line.strip()))
 
     return contents
+
+
+def preprocess(infile, outfile):
+    check_filetype(infile)
+
+    fin = open(infile)
+    columns = fin.readline().split(',')
+
+    index = re.search(r"([0:9])", columns[0]).group(0)
+    count = 1
+    labels = list()
+
+    for col in columns:
+        if (sig := re.search(r"([0-9]+)", col).group(1)) != index:
+            index = sig
+            count = 2
+        else:
+            count = count + 1
+
+        labels.append(f"{col.split()[0]}-{count // 2} {col.split()[1]}")
+
+    fout = open(outfile, 'w')
+    fout.write(f'{",".join(labels)}\n')
+
+    while line := fin.readline():
+        fout.write(line)
+
+
