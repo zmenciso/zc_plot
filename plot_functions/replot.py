@@ -320,6 +320,8 @@ def plot(df, kwargs):
 
     ax = draw_labels(ax)
     draw_legend()
+    if param['bbox'] == 'none' and ax.get_legend():
+        ax.get_legend().remove()
     plt.tight_layout()
 
     # Write out
