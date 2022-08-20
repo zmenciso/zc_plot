@@ -89,11 +89,17 @@ def preprocess(infile, outfile):
 
         labels.append(f"{col.split()[0]}-{count // 2} {col.split()[1]}")
 
-    fout = open(outfile, 'w')
+    try:
+        fout = open(outfile, 'w')
+    except Exception as e:
+        print(f'ERROR: Could not open {outfile} for write ({e})', file=sys.stderr)
+        sys.exit(255)
+
     fout.write(f'{",".join(labels)}\n')
 
     while line := fin.readline():
         fout.write(line)
+
 
 def ingest_wave_mc(filename):
     temp_file = f'temp_{os.path.basename(filename)}'
