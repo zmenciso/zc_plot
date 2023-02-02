@@ -67,7 +67,7 @@ def draw(y, df, cmap):
                           ci=param['ci'],
                           palette=cmap)
 
-    elif 'scatter' in param['ptype']:
+    if 'scatter' in param['ptype']:
         ax = sns.scatterplot(data=df,
                              x=param['x'],
                              y=y,
@@ -99,7 +99,7 @@ def draw(y, df, cmap):
         df = df.pivot_table(columns=param['x'], index=y, values=param['hue'])
         ax = sns.heatmap(data=df, cmap=cmap)
 
-    elif 'hist' in param['ptype']:
+    if 'hist' in param['ptype']:
         ax = sns.histplot(data=df,
                           x=param['x'],
                           y=y if y != 'None' else None,
