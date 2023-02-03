@@ -1,7 +1,16 @@
-#   ZC Plot, a Cadence Plotting Utility
+```
+ _________   ____  _       _
+|__  / ___| |  _ \| | ___ | |_
+  / / |     | |_) | |/ _ \| __|
+ / /| |___  |  __/| | (_) | |_
+/____\____| |_|   |_|\___/ \__|
 
-_Zephan M. Enciso_  
-_Intelligent MicroSystems Lab_
+```
+
+**ZC Plot** is an extensible set of scripts for plotting **waveforms** (or
+groups of waveforms, or even multiple series of groups), **Maestro summary
+data**, or even **raw CSV files**.  The included scripts use Seaborn, but users
+can write their own plot functions using any Python data visualization package!
 
 ![Example 0](./samples/sample0.svg)
 ![Example 1](./samples/sample1.svg)
@@ -26,21 +35,18 @@ arise.  Please report (or fix!) any problems with non-Linux operating systems.
 
 ##  Usage
 
-This script supports plotting **waveforms** (or groups of waveforms, or even
-multiple series of groups), **Maestro summary data** (with the `-s` or
-`--summary` switch), or any **raw CSV file** (with the `-r` or `--raw` switch).
 If plotting waveforms, select all the waves in the waveform viewer and export
-your data as a `.csv` file.  Make sure to enable the "Interpolate" option so
-each waveform has the same time axis.  Then, invoke the main script as follows:
+your data as a `.csv` file.  Make sure to enable the "Interpolate" option for
+transient simulations so each waveform has the same time axis.  Then, invoke the
+main script as follows:
 
 ```
 ./zc_plot.py [options] PLOT INPUT [kwargs]
     -h  --help      [PLOT]  Display this message or usage for PLOT
     -k  --kwargs     FILE   Load additional external kwargs from FILE
     -x  --export     FILE   Exports the current kwargs to FILE
-    -l  --log        FILE   Change default logfile name (or 'none' to disable)
-    -s  --summary           Feed in summary data instead of a waveform
-    -r  --raw               Feed in a raw .csv file instead of a waveform
+    -t  --type       TYPE   Input file type ('wave', 'summary', 'mc', or 'raw', default: 'wave')
+    -l  --log        FILE   Logfile name (or 'none' to disable)
     -i  --interact          View data ingest before setting kwargs
     -q  --quiet             Surpress verbose output
     -v  --version           Print version string
@@ -60,12 +66,12 @@ be treated as comments.  When using an external file, any CLI kwargs will always
 be **appended after the external kwargs**.
 
 Alternatively, using **interactive mode** (`-i` or `--interact`) previews the
-parsed data and opens a kwarg editor.  This is especially powerful when combined
-with the `-x` or `--export` switch, which saves the current kwargs to a
-properly-formatted text file.
+parsed data and opens a kwarg editor.  This is especially powerful when
+_combined with the `-x` or `--export` switch_, which saves the current kwargs to
+a properly-formatted text file.
 
-> _Pro tip:_ The `csv_dump` function turns this tool into a Cadence-to-csv
-> parser.
+> _Pro tip:_ The `csv_dump` function turns this tool into a
+> Cadence-to-actually-readable-csv parser.
 
 ### Replot
 
