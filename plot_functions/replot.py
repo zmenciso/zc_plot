@@ -293,9 +293,12 @@ def plot(df, kwargs):
 
     # Read kwargs
     for arg in kwargs:
-        key, value = arg.split('=')
-        key = key_expander(key)
-        param[key] = value
+        try:
+            key, value = arg.split('=')
+            key = key_expander(key)
+            param[key] = value
+        except Exception as e:
+            print(f'ERROR: Unable to decode arg {arg} ({e})', file=sys.stderr)
 
     # Fix param variable types
     param = augment_param()
