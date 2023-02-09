@@ -60,7 +60,7 @@ def log(kwargs, df):
               file=sys.stderr)
         return time
 
-    fout.write(f'cadence_plot ver. {VERSION}\n')
+    fout.write(f'ZC Plot ver. {VERSION}\n')
     fout.write(f'Executed on {time.split("T")[0]} at {time.split("T")[1]}\n')
     fout.write('-' * 80 + '\n\n')
 
@@ -89,17 +89,6 @@ def log(kwargs, df):
 # Main execution
 
 if __name__ == '__main__':
-    # Create default directories
-    if not os.path.isdir(os.path.join(PROJ_DIR, 'plots')):
-        allow = tools.query('Default `plots` directory does not exist, create it?', 'yes')
-        if allow:
-            os.mkdir(os.path.join(PROJ_DIR, 'plots'))
-
-    if not os.path.isdir(os.path.join(PROJ_DIR, 'logs')):
-        allow = tools.query('Default `logs` directory does not exist, create it?', 'yes')
-        if allow:
-            os.mkdir(os.path.join(PROJ_DIR, 'logs'))
-
     # Parse command line options
     # TODO: Change this to argparse
     args = sys.argv[1:]
@@ -108,6 +97,7 @@ if __name__ == '__main__':
         if args[0] == '-h' or args[0] == '--help':
             args.pop(0)
             if args and args[0] in ' '.join(os.listdir(FUNC_DIR)):
+                exec(f'from {os.path.basename(FUNC_DIR)} import {args[0]}')
                 eval(f'{args[0]}.usage()')
                 sys.exit(0)
             else:
@@ -143,16 +133,26 @@ if __name__ == '__main__':
         INPUT = args.pop(0)
         kwargs = args
 
+    # Create default directories
+    if not os.path.isdir(os.path.join(PROJ_DIR, 'plots')):
+        allow = tools.query('Default `plots` directory does not exist, create it?', 'yes')
+        if allow:
+            os.mkdir(os.path.join(PROJ_DIR, 'plots'))
+
+    if not os.path.isdir(os.path.join(PROJ_DIR, 'logs')):
+        allow = tools.query('Default `logs` directory does not exist, create it?', 'yes')
+        if allow:
+            os.mkdir(os.path.join(PROJ_DIR, 'logs'))
+
     # Check plot function, input file, external kwargs
-    if PLOT not in ' '.join(os.listdir(FUNC_DIR)) or not os.path.isfile(os.path.join(FUNC_DIR, f'{PLOT}.py')):
+    if not os.path.isfile(os.path.join(FUNC_DIR, f'{PLOT}.py')):
         print(f'ERROR: {PLOT} is not a valid function', file=sys.stderr)
         sys.exit(101)
     if not os.path.isfile(INPUT):
         print(f'ERROR: Input `{INPUT}` is not a valid file', file=sys.stderr)
         sys.exit(102)
     if KWARGS and not os.path.isfile(KWARGS):
-        print(f'ERROR: External kwargs `{KWARGS}` is not a valid file',
-              file=sys.stderr)
+        print(f'ERROR: External kwargs `{KWARGS}` is not a valid file', file=sys.stderr)
         sys.exit(103)
 
     # Ingest data

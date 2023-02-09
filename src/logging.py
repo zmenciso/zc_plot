@@ -25,7 +25,7 @@ def export_kwargs(kwargs, filename, version):
             file=sys.stderr)
         return
 
-    print(f'# cadence_plot ver. {version}', file=fout)
+    print(f'# ZC Plot ver. {version}', file=fout)
     print(
         f'# Automatically generated on {time.split("T")[0]} at {time.split("T")[1]}',
         file=fout
