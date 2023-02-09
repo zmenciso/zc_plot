@@ -1,11 +1,4 @@
-```
- _________   ____  _       _
-|__  / ___| |  _ \| | ___ | |_
-  / / |     | |_) | |/ _ \| __|
- / /| |___  |  __/| | (_) | |_
-/____\____| |_|   |_|\___/ \__|
-
-```
+#   ZC Plot
 
 **ZC Plot** is an extensible set of scripts for plotting **waveforms** (or
 groups of waveforms, or even multiple series of groups), **Maestro summary
@@ -20,15 +13,8 @@ Plots generated from one simple command!
 
 ##  Dependencies
 
-These utilities have been tested with Linux 4.18.0 and the following software
-versions:
-  - `python` >= 3.9.7
-  - `matplotlib` == 3.5.1
-  - `jedi` == 0.18.1
-  - `scipy` == 1.8.0
-  - `numpy` == 1.22.2
-  - `pandas` == 1.4.0
-  - `seaborn` == 0.11.2
+These utilities have been tested with Linux 4.18.0 and Python 3.9.  Run `pip
+install --requirement requirements.txt` to install additional dependencies.
 
 This project is _theoretically_ OS-insensitive, but unforeseen issues might
 arise.  Please report (or fix!) any problems with non-Linux operating systems.
