@@ -33,7 +33,7 @@ Figure
     context=str     cx=str      Scale plot elements (default: 'notebook')
     logx=bool       lx=bool     Enable/disable log for x-axis (default: False)
     logy=bool       ly=bool     Enable/disable log for y-axis (default: False)
-    bbox=str        bb=str      Bbox pos (right/center/none, default: 'right')
+    bbox=str        bb=str      Bbox pos (right/center/inside/none, default: 'right')
     xlim=tuple                  Change xlim (default: full range)
     ylim=tuple                  Change ylim (default: full range)
 Drawing
@@ -130,35 +130,35 @@ def draw(y, df, cmap):
 
 
 def draw_legend():
-    if param['bbox'] != 'none' and (
-            param['hue'] or param['style']) and 'heat' not in param['ptype']:
+    if param['bbox'] == 'none' or 'heat' in param['ptype'] or not param['ltitle']:
+        return
 
-        handles, labels = plt.gca().get_legend_handles_labels()
+    handles, labels = plt.gca().get_legend_handles_labels()
 
-        if len(param['y']) > 1:
-            r = len(labels) // len(param['y'])
-            for index, wave in enumerate(param['y']):
-                for i in range(index * r, index * r + r):
-                    labels[i] = f'{wave} ' + labels[i]
+    if len(param['y']) > 1:
+        r = len(labels) // len(param['y'])
+        for index, wave in enumerate(param['y']):
+            for i in range(index * r, index * r + r):
+                labels[i] = f'{wave} ' + labels[i]
 
-        if param['bbox'] == 'center':
-            plt.legend(handles,
-                       labels,
-                       loc='upper center',
-                       bbox_to_anchor=(.5, 1.25),
-                       ncol=len(handles),
-                       title=param['ltitle']
-                       if param['ltitle'].lower() != 'none' else None,
-                       borderaxespad=0)
+    if param['bbox'] == 'center':
+        plt.legend(handles,
+                   labels,
+                   loc='upper center',
+                   bbox_to_anchor=(.5, 1.25),
+                   ncol=len(handles),
+                   title=param['ltitle']
+                   if param['ltitle'].lower() != 'none' else None,
+                   borderaxespad=0)
 
-        else:
-            plt.legend(handles,
-                       labels,
-                       loc='upper left',
-                       bbox_to_anchor=(1.02, 1),
-                       title=param['ltitle']
-                       if param['ltitle'].lower() != 'none' else None,
-                       borderaxespad=0)
+    else:
+        plt.legend(handles,
+                   labels,
+                   loc='upper left' if param['bbox'] != 'inside' else None,
+                   bbox_to_anchor=(1.02, 1) if param['bbox'] != 'inside' else None,
+                   title=param['ltitle']
+                   if param['ltitle'].lower() != 'none' else None,
+                   borderaxespad=0)
 
 
 def draw_labels(ax):
@@ -218,8 +218,8 @@ def augment_param():
     param['alpha'] = float(param['alpha'])
     param['width'] = float(param['width']) if param['width'] else None
     param['ci'] = float(param['ci'])
-    param['logy'] = bool(param['logy'])
-    param['logx'] = bool(param['logx'])
+    param['logy'] = param['logy'].lower() in ['t', 'true', 'yes', 'y', '1']
+    param['logx'] = param['logx'].lower() in ['t', 'true', 'yes', 'y', '1']
     param['fill'] = bool(param['fill'])
     param['bins'] = int(param['bins'])
     param['xscale'] = float(param['xscale'])
@@ -235,9 +235,13 @@ def augment_param():
         param['xlabel'] = param['x']
 
     # Set legend title
-    if not param['ltitle']:
+    if not param['ltitle'] and param['hue']:
         param['ltitle'] = f"{param['hue']}/{param['style']}" if param[
             'style'] else param['hue']
+    elif not param['ltitle'] and len(param['y']) > 1:
+        # TODO: Create legend for multiple y series without hue or style
+        # param['ltitle'] = 'Series'
+        param['ltitle'] = None
 
     return param
 
@@ -260,9 +264,9 @@ def plot(df, kwargs):
     param = {
         'figsize': '6,3',
         'alpha': 0.8,
-        'logy': False,
-        'logx': False,
-        'bbox': True,
+        'logy': 'F',
+        'logx': 'F',
+        'bbox': 'right',
         'filetype': 'svg',
         'filename': None,
         'ltitle': None,
@@ -323,8 +327,6 @@ def plot(df, kwargs):
 
     ax = draw_labels(ax)
     draw_legend()
-    if param['bbox'] == 'none' and ax.get_legend():
-        ax.get_legend().remove()
     plt.tight_layout()
 
     # Write out
