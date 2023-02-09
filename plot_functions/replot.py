@@ -102,21 +102,21 @@ def draw(y, df, cmap):
     if 'hist' in param['ptype']:
         ax = sns.histplot(data=df,
                           x=param['x'],
-                          y=y if y != 'None' else None,
+                          y=y if y.lower() != 'none' else None,
                           fill=not param['fill'],
                           stat=param['stat'] if param['stat'] else 'count',
                           bins=param['bins'],
                           hue=param['hue'],
                           kde=('kde' in param['ptype']),
                           multiple=param['multiple'],
-                          cbar=True if y != 'None' else False,
-                          cbar_kws=dict(shrink=.75) if y != 'None' else None,
+                          cbar=True if y.lower() != 'none' else False,
+                          cbar_kws=dict(shrink=.75) if y.lower() != 'none' else None,
                           palette=cmap)
 
     elif 'kde' in param['ptype']:
         ax = sns.kdeplot(data=df,
                          x=param['x'],
-                         y=y if y != 'None' else None,
+                         y=y if y.lower() != 'none' else None,
                          fill=param['fill'],
                          levels=param['bins'],
                          hue=param['hue'],
@@ -163,8 +163,15 @@ def draw_legend():
 
 def draw_labels(ax):
     # Label axes
-    plt.xlabel(param['xlabel'])
-    plt.ylabel(param['ylabel'])
+    if param['xlabel'].lower() == 'none':
+        plt.xlabel(None)
+    else:
+        plt.xlabel(param['xlabel'])
+
+    if param['ylabel'].lower() == 'none':
+        plt.ylabel(None)
+    else:
+        plt.ylabel(param['ylabel'])
 
     # Set axes limits
     if param['xlim']:
@@ -230,7 +237,7 @@ def augment_param():
 
     # Set labels
     if not param['ylabel']:
-        param['ylabel'] = param['y'][0]
+        param['ylabel'] = param['y'][0] if 'hist' not in param['ptype'] or 'kde' not in param['ptype'] else 'none'
     if not param['xlabel']:
         param['xlabel'] = param['x']
 
@@ -326,6 +333,7 @@ def plot(df, kwargs):
         ax = draw(y, df, cmap)
 
     ax = draw_labels(ax)
+    # ax.set_xticklabels(np.array([f'{i:2.3f}' for i in plt.xticks()[0]]))
     draw_legend()
     plt.tight_layout()
 
