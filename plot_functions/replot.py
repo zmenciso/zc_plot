@@ -54,6 +54,28 @@ Spaces in expression/signal names are not supported!''')
 
 
 def draw(y, df, cmap):
+    if 'joint' in param['ptype']:
+        ax = sns.jointplot(data=df,
+                           x=param['x'],
+                           y=y,
+                           kind=re.sub('joint', '', param['ptype']),
+                           height=param['figsize'][0],
+                           hue=param['hue'],
+                           palette=cmap,
+                           marginal_ticks=True)
+
+    elif 'scatter' in param['ptype']:
+        ax = sns.scatterplot(data=df,
+                             x=param['x'],
+                             y=y,
+                             hue=param['hue'],
+                             style=param['style'],
+                             size=param['size'],
+                             alpha=param['alpha'],
+                             edgecolor=None,
+                             s=param['width'] if param['width'] else 16,
+                             palette=cmap)
+
     if 'line' in param['ptype']:
         ax = sns.lineplot(data=df,
                           x=param['x'],
@@ -66,27 +88,6 @@ def draw(y, df, cmap):
                           lw=param['width'] if param['width'] else 2,
                           ci=param['ci'],
                           palette=cmap)
-
-    if 'scatter' in param['ptype']:
-        ax = sns.scatterplot(data=df,
-                             x=param['x'],
-                             y=y,
-                             hue=param['hue'],
-                             style=param['style'],
-                             size=param['size'],
-                             alpha=param['alpha'],
-                             edgecolor=None,
-                             s=param['width'] if param['width'] else 16,
-                             palette=cmap)
-
-    elif 'joint' in param['ptype']:
-        ax = sns.jointplot(data=df,
-                           x=param['x'],
-                           y=y,
-                           kind=re.sub('joint', '', param['ptype']),
-                           height=param['figsize'][0],
-                           hue=param['hue'],
-                           palette=cmap)
 
     elif 'heat' in param['ptype']:
         # TODO: Rounding is cringe, remove it
