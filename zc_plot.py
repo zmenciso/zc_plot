@@ -49,9 +49,7 @@ def log(kwargs, df):
     elif LOG:
         filename = LOG
     else:
-        filename = LOG_DIR + '/' + time + '.log'
-
-    filename = filename.replace("\\", "/")
+        filename = os.path.join(LOG_DIR, f'{time}.log')
 
     try:
         fout = open(filename, 'a')
@@ -161,7 +159,7 @@ if __name__ == '__main__':
     elif 'raw' in FILETYPE:
         tools.check_filetype(INPUT)
         df = pd.read_csv(INPUT)
-    elif 'mc' in FILETYPE:
+    elif 'mc' in FILETYPE or 'monte' in FILETYPE:
         df = ingest.ingest_wave_mc(INPUT)
     else:
         df = ingest.ingest_wave(INPUT)
