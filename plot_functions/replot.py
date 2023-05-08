@@ -9,6 +9,7 @@ import numpy as np
 import re
 import sys
 import os
+import warnings
 
 
 def usage():
@@ -54,6 +55,8 @@ Spaces in expression/signal names are not supported!''')
 
 
 def draw(y, df, cmap):
+    warnings.filterwarnings("ignore")
+
     if 'joint' in param['ptype']:
         ax = sns.jointplot(data=df,
                            x=param['x'],
@@ -86,7 +89,7 @@ def draw(y, df, cmap):
                           alpha=param['alpha'],
                           estimator=param['stat'] if param['stat'] else 'mean',
                           lw=param['width'] if param['width'] else 2,
-                          ci=param['ci'],
+                          errorbar=('ci', param['ci']),
                           palette=cmap)
 
     elif 'heat' in param['ptype']:
