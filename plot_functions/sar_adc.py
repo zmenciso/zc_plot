@@ -8,6 +8,7 @@
 import sys
 import numpy as np
 import pandas as pd
+from src import text
 from scipy import signal
 from plot_functions import replot
 
@@ -67,10 +68,7 @@ def plot(df, kwargs):
 
         # Check bitwidth == number of peaks found
         if param['bits'] and len(pos[0]) + len(neg[0]) != param['bits']:
-            print(
-                f'ERROR: Failed to decode {param["var"]} = {var} ({len(pos[0])}+ {len(neg[0])}-)',
-                file=sys.stderr)
-            continue
+            text.error(f'Failed to decode {param["var"]} = {var} ({len(pos[0])}+ {len(neg[0])}-)')
 
         peaks = {key: "+" for key in pos[0]} | {key: "-" for key in neg[0]}
 
@@ -102,8 +100,7 @@ def plot(df, kwargs):
         codespace = np.linspace(vmin, vmax, num=2**param['bits'])
         df_out['inl'] = [codespace[int(i)] for i in df_out["code"]]
     elif param['inl']:
-        print('ERROR: Bitwidth not specified; cannot compute INL',
-              file=sys.stderr)
+        text.error('Bitwidth not specified; cannot compute INL')
 
     # Call replot
     replot.plot(df_out, kwargs)

@@ -4,6 +4,7 @@
 # zenciso@nd.edu
 # Intelligent MicroSystems Lab
 
+from src import text
 import sys
 import re
 import os
@@ -29,8 +30,7 @@ SI = {
 
 def check_filetype(filename):
     if os.path.splitext(filename)[-1] != '.csv':
-        print('ERROR: Input file must be .csv', file=sys.stderr)
-        sys.exit(3)
+        text.error('Input file must be .csv', 3)
 
 
 def si_convert(df, columns):
@@ -60,7 +60,7 @@ def query(prompt=None, default=None):
         raise ValueError(f'Invalid default answer: {default}')
 
     while True:
-        response = input(prompt + sel)
+        response = input('\033[93m' + prompt + sel + '\x1b[0m')
         if (default is not None) and len(response) == 0:
             return valid[default]
         elif response.lower() in valid:

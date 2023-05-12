@@ -7,6 +7,7 @@ import re
 import sys
 import os
 from src import tools
+from src import text
 
 
 def ingest_wave(filename):
@@ -92,8 +93,7 @@ def preprocess(infile, outfile):
     try:
         fout = open(outfile, 'w')
     except Exception as e:
-        print(f'ERROR: Could not open {outfile} for write ({e})', file=sys.stderr)
-        sys.exit(255)
+        text.error(f'Could not open {outfile} for writing ({e})', 255)
 
     fout.write(f'{",".join(labels)}\n')
 
@@ -110,6 +110,6 @@ def ingest_wave_mc(filename):
     try:
         os.remove(temp_file)
     except Exception as e:
-        print(f'ERROR: Could not remove temporary file {temp_file} ({e})', file=sys.stderr)
+        text.error(f'Could not remove temporary file {temp_file} ({e})')
 
     return df
