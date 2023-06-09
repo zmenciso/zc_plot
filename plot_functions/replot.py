@@ -3,12 +3,14 @@
 
 # from plot_functions import test
 from src import tools
+from src import text
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 import re
 import sys
 import os
+import warnings
 
 
 def usage():
@@ -54,6 +56,8 @@ Spaces in expression/signal names are not supported!''')
 
 
 def draw(y, df, cmap):
+    warnings.filterwarnings("ignore")
+
     if 'joint' in param['ptype']:
         ax = sns.jointplot(data=df,
                            x=param['x'],
@@ -86,15 +90,14 @@ def draw(y, df, cmap):
                           alpha=param['alpha'],
                           estimator=param['stat'] if param['stat'] else 'mean',
                           lw=param['width'] if param['width'] else 2,
-                          ci=param['ci'],
+                          errorbar=('ci', param['ci']),
                           palette=cmap)
 
     elif 'heat' in param['ptype']:
         # TODO: Rounding is cringe, remove it
         # TODO: Support for vmin, vmax
         if not param['hue'] or param['size'] or param['style']:
-            print('ERROR: heamap must have only x, y, and hue defined',
-                  file=sys.stderr)
+            text.error('heatmap must have only x, y, and hue defined', 350)
         df[param['x']] = np.round(df[param['x']], 1)
         df[y] = np.round(df[y], 1)
         df = df.pivot_table(columns=param['x'], index=y, values=param['hue'])
@@ -310,7 +313,7 @@ def plot(df, kwargs):
             key = key_expander(key)
             param[key] = value
         except Exception as e:
-            print(f'ERROR: Unable to decode arg {arg} ({e})', file=sys.stderr)
+            text.error(f'Unable to decode arg {arg} ({e})')
 
     # Fix param variable types
     param = augment_param()
@@ -349,4 +352,4 @@ def plot(df, kwargs):
         filename = f'./plots/{y}_' + f"{param['time']}.{param['filetype']}"
         plt.savefig(f'{filename}')
 
-    print(f'Output:  {os.path.realpath(filename)}')
+    text.cprint('OKGREEN', f'Output:  {os.path.realpath(filename)}')

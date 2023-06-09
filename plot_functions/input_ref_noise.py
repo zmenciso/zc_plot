@@ -6,6 +6,7 @@
 
 from plot_functions import replot
 from scipy.optimize import curve_fit
+from src import text
 import pandas as pd
 import numpy as np
 import sys
@@ -92,7 +93,7 @@ sigma {align_num(parameters[3])}
     H {align_num(parameters[0])}''')
 
     except Exception as e:
-        print(f'ERROR: Unable to fit Gaussian curve: {e}')
+        text.error(f'Unable to fit Gaussian curve: {e}')
 
     kwargs = ['pt=scatter'] + kwargs + [f'y={param["y"]}']
     replot.plot(pd_sampled, kwargs)

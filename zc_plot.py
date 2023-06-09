@@ -54,8 +54,7 @@ def log(kwargs, df):
     try:
         fout = open(filename, 'a')
     except Exception as e:
-        print(f'ERROR: Could not open logfile `{filename}` for writing ({e})',
-              file=sys.stderr)
+        text.error(f'Could not open logfile `{filename}` for writing ({e})')
         return time
 
     fout.write(f'ZC Plot ver. {VERSION}\n')
@@ -80,7 +79,7 @@ def log(kwargs, df):
     print(df, file=fout)
 
     fout.close()
-    print(f'Logfile: {os.path.realpath(filename)}')
+    text.cprint('OKBLUE', f'Logfile: {os.path.realpath(filename)}')
     return time
 
 
@@ -103,7 +102,7 @@ if __name__ == '__main__':
         elif args[0] == '-q' or args[0] == '--quiet':
             VERBOSE = False
         elif args[0] == '-v' or args[0] == '--version':
-            print(f'Version {VERSION}') if VERSION else print('UNKNOWN VERSION')
+            text.cprint('OKBLUE', f'Version {VERSION}') if VERSION else print('UNKNOWN VERSION')
             exit(0)
         elif args[0] == '-t' or args[0] == '--type':
             FILETYPE = args.pop(1).lower()
@@ -116,14 +115,14 @@ if __name__ == '__main__':
         elif args[0] == '-l' or args[0] == '--log':
             LOG = args.pop(1)
         else:
-            print('ERROR: Not a valid option `{args[0]}`\n', file=sys.stderr)
+            text.error(f'Not a valid option `{args[0]}`\n')
             text.usage(1, FUNC_DIR)
 
         args.pop(0)
 
     # Missing arguments
     if len(args) < 2:
-        print('ERROR: Not enough arguments\n', file=sys.stderr)
+        text.error('Not enough arguments\n')
         text.usage(2, FUNC_DIR)
 
     else:
@@ -144,14 +143,11 @@ if __name__ == '__main__':
 
     # Check plot function, input file, external kwargs
     if not os.path.isfile(os.path.join(FUNC_DIR, f'{PLOT}.py')):
-        print(f'ERROR: {PLOT} is not a valid function', file=sys.stderr)
-        sys.exit(101)
+        text.error(f'{PLOT} is not a valid function', 101)
     if not os.path.isfile(INPUT):
-        print(f'ERROR: Input `{INPUT}` is not a valid file', file=sys.stderr)
-        sys.exit(102)
+        text.error(f'Input `{INPUT}` is not a valid file', 102)
     if KWARGS and not os.path.isfile(KWARGS):
-        print(f'ERROR: External kwargs `{KWARGS}` is not a valid file', file=sys.stderr)
-        sys.exit(103)
+        text.error(f'External kwargs `{KWARGS}` is not a valid file', 103)
 
     # Ingest data
     if 'sum' in FILETYPE:
