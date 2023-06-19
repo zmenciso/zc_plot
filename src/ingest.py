@@ -27,7 +27,7 @@ def ingest_wave(filename):
     for i in range(num):
         df_fill = pd.DataFrame()
 
-        for label, content in df_in.iloc[:, (2 * i * series + 1):(2 * i * series + 1 + (2 * series)):2].iteritems():
+        for label, content in df_in.iloc[:, (2 * i * series + 1):(2 * i * series + 1 + (2 * series)):2].items():
             wave = label.split()[0].strip('/')
             param = list()
 
