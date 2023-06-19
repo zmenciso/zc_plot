@@ -1,9 +1,9 @@
 # Zephan M. Enciso
 # Intelligent MicroSystems Lab
 
-# from plot_functions import test
 from src import tools
 from src import text
+
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
@@ -241,7 +241,10 @@ def augment_param():
 
     # Set labels
     if not param['ylabel']:
-        param['ylabel'] = param['y'][0] if 'hist' not in param['ptype'] or 'kde' not in param['ptype'] else 'none'
+        param['ylabel'] = param['y'][0] \
+            if 'hist' not in param['ptype'] or 'kde' not in param['ptype'] \
+            else 'none'
+
     if not param['xlabel']:
         param['xlabel'] = param['x']
 
@@ -344,12 +347,13 @@ def plot(df, kwargs):
     # Write out
     if param['filename']:
         filename = param['filename'] + '.' + param['filetype']
-        allow = tools.query(f'Overwrite {filename}?', 'yes') if os.path.isfile(filename) else True
-        if allow:
-            plt.savefig(filename)
     else:
         y = re.sub('/', '-', '+'.join(param['y']))
         filename = f'./plots/{y}_' + f"{param['time']}.{param['filetype']}"
-        plt.savefig(f'{filename}')
 
-    text.cprint('OKGREEN', f'Output:  {os.path.realpath(filename)}')
+    allow = tools.query(f'Overwrite {filename}?', 'yes') \
+        if os.path.isfile(filename) else True
+
+    if allow:
+        plt.savefig(filename)
+        text.cprint('OKGREEN', f'Output:  {os.path.realpath(filename)}')
