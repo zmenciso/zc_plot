@@ -10,7 +10,7 @@ import sys
 import numpy as np
 import pandas as pd
 from src import text
-from plot_functions.replot import plot
+from plot_functions import replot
 
 
 def usage():
@@ -41,7 +41,7 @@ def plot(df, kwargs):
     param['tail'] = int(param['tail'])
     param['bits'] = int(param['bits'])
 
-    df_out = pd.DataFrame(df[param['var']])
+    df_out = pd.DataFrame(df[param['var']].copy())
     df_out['code'] = np.zeros(len(df_out))
 
     for index, col in enumerate(df.columns[1:]):
@@ -72,4 +72,4 @@ def plot(df, kwargs):
         text.error('Bitwidth not specified; cannot compute INL')
 
     # Call replot
-    plot(df_out, kwargs)
+    replot.plot(df_out, kwargs)
