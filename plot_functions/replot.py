@@ -117,7 +117,7 @@ def draw(y, df, cmap):
                           cbar_kws=dict(shrink=.75) if y.lower() != 'none' else None,
                           palette=cmap)
 
-    elif 'kde' in param['ptype']:
+    if 'kde' in param['ptype']:
         ax = sns.kdeplot(data=df,
                          x=param['x'],
                          y=y if y.lower() != 'none' else None,
