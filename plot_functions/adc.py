@@ -19,12 +19,15 @@ def usage():
     bits=int        Set number of bits (opt; performs sanity checks)
     dnl=bool        Enable DNL, requires var == code voltage (default: True)
     inl=bool        Enable INL, requires var == code voltage (default: False)
+    var=str         Variable to plot against (default: Column 0)
+    data=str        Label to check for bits (default: 'D')
     tail=int        Display this number of the worst DNL (default: 0)''')
 
 
 def plot(df, kwargs):
     param = {
         'var': df.columns[0],
+        'data': 'D',
         'bits': 0,
         'inl': False,
         'dnl': True,
@@ -45,8 +48,9 @@ def plot(df, kwargs):
     df_out['code'] = np.zeros(len(df_out))
 
     for index, col in enumerate(df.columns[1:]):
-        i = re.match(r'.*([0-9]+).*', col)[1]
-        df_out['code'] = df_out['code'] + (df[col] * (2 ** int(i)))
+        if param['data'] in col:
+            i = re.match(r'.*([0-9]+).*', col)[1]
+            df_out['code'] = df_out['code'] + (df[col] * (2 ** int(i)))
 
     if param['bits']:
         if (index + 1) != param['bits']:
