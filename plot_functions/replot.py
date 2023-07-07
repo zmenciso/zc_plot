@@ -38,6 +38,7 @@ Figure
     bbox=str        bb=str      Bbox pos (right/center/inside/none, default: 'right')
     xlim=tuple                  Change xlim (default: full range)
     ylim=tuple                  Change ylim (default: full range)
+    vlim=tuple                  Change vlim (default: full range)
 Drawing
     width=float     w=float     Change marker or line width (default: Depends)
     alpha=float     a=float     Change alpha (default: 0.5)
@@ -95,13 +96,23 @@ def draw(y, df, cmap):
 
     elif 'heat' in param['ptype']:
         # TODO: Rounding is cringe, remove it
-        # TODO: Support for vmin, vmax
         if not param['hue'] or param['size'] or param['style']:
             text.error('heatmap must have only x, y, and hue defined', 350)
+
+        if param['vlim']:
+            param['vlim'] = tuple(map(float, param['vlim'].strip('()').split(',')))
+        else:
+            param['vlim'] = (None, None)
+
         df[param['x']] = np.round(df[param['x']], 1)
         df[y] = np.round(df[y], 1)
         df = df.pivot_table(columns=param['x'], index=y, values=param['hue'])
-        ax = sns.heatmap(data=df, cmap=cmap)
+
+        ax = sns.heatmap(data=df,
+                         cmap=cmap,
+                         robust=True,
+                         vmin=param['vlim'][0],
+                         vmax=param['vlim'][1])
 
     if 'hist' in param['ptype']:
         ax = sns.histplot(data=df,
@@ -239,6 +250,13 @@ def augment_param():
     param['sscale'] = float(param['sscale'])
     param['ptype'] = param['ptype'].lower()
 
+    if param['ylim'] and 'none' in param['ylim'].lower():
+        param['ylim'] = None
+    if param['xlim'] and 'none' in param['xlim'].lower():
+        param['xlim'] = None
+    if param['vlim'] and 'none' in param['vlim'].lower():
+        param['vlim'] = None
+
     # Set labels
     if not param['ylabel']:
         param['ylabel'] = param['y'][0] \
@@ -288,6 +306,7 @@ def plot(df, kwargs):
         'ylabel': None,
         'xlim': None,
         'ylim': None,
+        'vlim': None,
         'axes': 'whitegrid',
         'context': 'notebook',
         'palette': 'crest',
