@@ -4,6 +4,7 @@
 from src import tools
 from src import text
 
+from matplotlib.colors import LogNorm
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
@@ -35,6 +36,7 @@ Figure
     context=str     cx=str      Scale plot elements (default: 'notebook')
     logx=bool       lx=bool     Enable/disable log for x-axis (default: False)
     logy=bool       ly=bool     Enable/disable log for y-axis (default: False)
+    logv=bool                   Enable/disable log for heatmap vlim (default: False)
     bbox=str        bb=str      Bbox pos (right/center/inside/none, default: 'right')
     xlim=tuple                  Change xlim (default: full range)
     ylim=tuple                  Change ylim (default: full range)
@@ -108,11 +110,17 @@ def draw(y, df, cmap):
         df[y] = np.round(df[y], 1)
         df = df.pivot_table(columns=param['x'], index=y, values=param['hue'])
 
-        ax = sns.heatmap(data=df,
-                         cmap=cmap,
-                         robust=True,
-                         vmin=param['vlim'][0],
-                         vmax=param['vlim'][1])
+        if param['logv']:
+            ax = sns.heatmap(data=df,
+                             cmap=cmap,
+                             robust=True,
+                             norm=LogNorm() if param['logv'] else None)
+        else:
+            ax = sns.heatmap(data=df,
+                             cmap=cmap,
+                             robust=True,
+                             vmin=param['vlim'][0],
+                             vmax=param['vlim'][1])
 
     if 'hist' in param['ptype']:
         ax = sns.histplot(data=df,
@@ -242,6 +250,7 @@ def augment_param():
     param['ci'] = float(param['ci'])
     param['logy'] = param['logy'].lower() in ['t', 'true', 'yes', 'y', '1']
     param['logx'] = param['logx'].lower() in ['t', 'true', 'yes', 'y', '1']
+    param['logv'] = param['logv'].lower() in ['t', 'true', 'yes', 'y', '1']
     param['fill'] = bool(param['fill'])
     param['bins'] = int(param['bins'])
     param['xscale'] = float(param['xscale'])
