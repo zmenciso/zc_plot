@@ -307,6 +307,7 @@ def plot(df, kwargs):
         'alpha': 0.8,
         'logy': 'F',
         'logx': 'F',
+        'logv': 'F',
         'bbox': 'right',
         'filetype': 'svg',
         'filename': None,
