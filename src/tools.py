@@ -41,8 +41,6 @@ def si_convert(df, columns):
         for item in repl:
             df[col] = df[col].str.replace(item, SI[item], regex=False, case=True)
 
-        df[col] = df[col].str.replace('eval err', 'NaN', regex=False, case=True)
-
     df.columns = columns
 
     return df
