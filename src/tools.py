@@ -19,6 +19,7 @@ SI = {
     'a': 'e-18',
     'z': 'e-21',
     'k': 'e3',
+    'K': 'e3',
     'M': 'e6',
     'G': 'e9',
     'T': 'e12',
@@ -39,6 +40,8 @@ def si_convert(df, columns):
 
         for item in repl:
             df[col] = df[col].str.replace(item, SI[item], regex=False, case=True)
+
+        df[col] = df[col].str.replace('eval err', 'NaN', regex=False, case=True)
 
     df.columns = columns
 
@@ -102,10 +105,12 @@ def preprocess(infile, outfile):
 
         labels.append(f"{col.split()[0]}-{count // 2} {col.split()[1]}")
 
-    fout = open(outfile, 'w')
+    try:
+        fout = open(outfile, 'w')
+    except Exception as e:
+        text.error(f'Could not open {outfile} for writing ({e})', 255)
+
     fout.write(f'{",".join(labels)}\n')
 
     while line := fin.readline():
         fout.write(line)
-
-
