@@ -163,7 +163,7 @@ if __name__ == '__main__':
     # Concatenate kwargs with external kwargs
     if KWARGS:
         kwargs = [
-            re.sub(r'\s+=\s+', '=', line.strip()) for line in open(KWARGS)
+            re.sub(r'\s*=\s*', '=', line.strip()) for line in open(KWARGS)
             if line.strip() and not line.strip().startswith('#')
         ] + kwargs
 

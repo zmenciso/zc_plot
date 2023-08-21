@@ -79,7 +79,9 @@ def input_list():
 
         if not line:
             break
-        contents.append(re.sub(r'\s+=\s+', '=', line.strip()))
+
+        line = re.sub(r',\s*', ',', line.strip())
+        contents.append(re.sub(r'\s*=\s*', '=', line))
 
     return contents
 

@@ -45,6 +45,7 @@ def plot(df, kwargs):
     param['bits'] = int(param['bits'])
 
     df_out = pd.DataFrame(df[param['var']].copy())
+    df_out = df_out.replace('0b', '', regex=False)
     df_out['code'] = np.zeros(len(df_out))
 
     for index, col in enumerate(df.columns[1:]):
