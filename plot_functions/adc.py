@@ -27,7 +27,7 @@ def usage():
 def plot(df, kwargs):
     param = {
         'var': df.columns[0],
-        'data': 'D',
+        'data': 'DATA',
         'bits': 0,
         'inl': False,
         'dnl': True,

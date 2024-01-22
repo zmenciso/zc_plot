@@ -51,8 +51,8 @@ def ingest_summary(filename):
     check_filetype(filename)
 
     df_in = pd.read_csv(filename)
-    df_in = df_in.replace('eval err', 'NaN', regex=False)
-    df_in = df_in.replace('0b', '', regex=False)
+    df_in.replace('eval err', 'NaN', inplace=True, regex=True)
+    df_in.replace('0b', '', inplace=True, regex=True)
     param = df_in.loc[df_in["Point"].str.contains("Parameters"), "Point"]
 
     df = pd.DataFrame(
