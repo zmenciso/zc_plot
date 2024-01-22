@@ -1,9 +1,10 @@
 # Zephan M. Enciso
 # Intelligent MicroSystems Lab
 
-# from plot_functions import test
 from src import tools
 from src import text
+
+from matplotlib.colors import LogNorm
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
@@ -35,9 +36,11 @@ Figure
     context=str     cx=str      Scale plot elements (default: 'notebook')
     logx=bool       lx=bool     Enable/disable log for x-axis (default: False)
     logy=bool       ly=bool     Enable/disable log for y-axis (default: False)
+    logv=bool                   Enable/disable log for heatmap vlim (default: False)
     bbox=str        bb=str      Bbox pos (right/center/inside/none, default: 'right')
     xlim=tuple                  Change xlim (default: full range)
     ylim=tuple                  Change ylim (default: full range)
+    vlim=tuple                  Change vlim (default: full range)
 Drawing
     width=float     w=float     Change marker or line width (default: Depends)
     alpha=float     a=float     Change alpha (default: 0.5)
@@ -95,13 +98,29 @@ def draw(y, df, cmap):
 
     elif 'heat' in param['ptype']:
         # TODO: Rounding is cringe, remove it
-        # TODO: Support for vmin, vmax
         if not param['hue'] or param['size'] or param['style']:
             text.error('heatmap must have only x, y, and hue defined', 350)
+
+        if param['vlim']:
+            param['vlim'] = tuple(map(float, param['vlim'].strip('()').split(',')))
+        else:
+            param['vlim'] = (None, None)
+
         df[param['x']] = np.round(df[param['x']], 1)
         df[y] = np.round(df[y], 1)
         df = df.pivot_table(columns=param['x'], index=y, values=param['hue'])
-        ax = sns.heatmap(data=df, cmap=cmap)
+
+        if param['logv']:
+            ax = sns.heatmap(data=df,
+                             cmap=cmap,
+                             robust=True,
+                             norm=LogNorm() if param['logv'] else None)
+        else:
+            ax = sns.heatmap(data=df,
+                             cmap=cmap,
+                             robust=True,
+                             vmin=param['vlim'][0],
+                             vmax=param['vlim'][1])
 
     if 'hist' in param['ptype']:
         ax = sns.histplot(data=df,
@@ -231,6 +250,7 @@ def augment_param():
     param['ci'] = float(param['ci'])
     param['logy'] = param['logy'].lower() in ['t', 'true', 'yes', 'y', '1']
     param['logx'] = param['logx'].lower() in ['t', 'true', 'yes', 'y', '1']
+    param['logv'] = param['logv'].lower() in ['t', 'true', 'yes', 'y', '1']
     param['fill'] = bool(param['fill'])
     param['bins'] = int(param['bins'])
     param['xscale'] = float(param['xscale'])
@@ -239,9 +259,19 @@ def augment_param():
     param['sscale'] = float(param['sscale'])
     param['ptype'] = param['ptype'].lower()
 
+    if param['ylim'] and 'none' in param['ylim'].lower():
+        param['ylim'] = None
+    if param['xlim'] and 'none' in param['xlim'].lower():
+        param['xlim'] = None
+    if param['vlim'] and 'none' in param['vlim'].lower():
+        param['vlim'] = None
+
     # Set labels
     if not param['ylabel']:
-        param['ylabel'] = param['y'][0] if 'hist' not in param['ptype'] or 'kde' not in param['ptype'] else 'none'
+        param['ylabel'] = param['y'][0] \
+            if 'hist' not in param['ptype'] or 'kde' not in param['ptype'] \
+            else 'none'
+
     if not param['xlabel']:
         param['xlabel'] = param['x']
 
@@ -277,6 +307,7 @@ def plot(df, kwargs):
         'alpha': 0.8,
         'logy': 'F',
         'logx': 'F',
+        'logv': 'F',
         'bbox': 'right',
         'filetype': 'svg',
         'filename': None,
@@ -285,6 +316,7 @@ def plot(df, kwargs):
         'ylabel': None,
         'xlim': None,
         'ylim': None,
+        'vlim': None,
         'axes': 'whitegrid',
         'context': 'notebook',
         'palette': 'crest',
@@ -344,12 +376,13 @@ def plot(df, kwargs):
     # Write out
     if param['filename']:
         filename = param['filename'] + '.' + param['filetype']
-        allow = tools.query(f'Overwrite {filename}?', 'yes') if os.path.isfile(filename) else True
-        if allow:
-            plt.savefig(filename)
     else:
         y = re.sub('/', '-', '+'.join(param['y']))
         filename = f'./plots/{y}_' + f"{param['time']}.{param['filetype']}"
-        plt.savefig(f'{filename}')
 
-    text.cprint('OKGREEN', f'Output:  {os.path.realpath(filename)}')
+    allow = tools.query(f'Overwrite {filename}?', 'yes') \
+        if os.path.isfile(filename) else True
+
+    if allow:
+        plt.savefig(filename)
+        text.cprint('OKGREEN', f'Output:  {os.path.realpath(filename)}')

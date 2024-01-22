@@ -4,14 +4,14 @@
 import pandas as pd
 import numpy as np
 import re
-import sys
 import os
-from src import tools
-from src import text
+
+from src.tools import preprocess, check_filetype, si_convert
+from src.text import error
 
 
 def ingest_wave(filename):
-    tools.check_filetype(filename)
+    check_filetype(filename)
 
     df_in = pd.read_csv(filename)
     x = df_in.iloc[:, 0]
@@ -27,7 +27,7 @@ def ingest_wave(filename):
     for i in range(num):
         df_fill = pd.DataFrame()
 
-        for label, content in df_in.iloc[:, (2 * i * series + 1):(2 * i * series + 1 + (2 * series)):2].iteritems():
+        for label, content in df_in.iloc[:, (2 * i * series + 1):(2 * i * series + 1 + (2 * series)):2].items():
             wave = label.split()[0].strip('/')
             param = list()
 
@@ -48,15 +48,17 @@ def ingest_wave(filename):
 
 
 def ingest_summary(filename):
-    tools.check_filetype(filename)
+    check_filetype(filename)
 
     df_in = pd.read_csv(filename)
+    df_in = df_in.replace('eval err', 'NaN', regex=False)
+    df_in = df_in.replace('0b', '', regex=False)
     param = df_in.loc[df_in["Point"].str.contains("Parameters"), "Point"]
 
     df = pd.DataFrame(
-        param.str.findall(r"[0-9a-z\.-]+=([0-9a-z\.-]*)").to_list())
+        param.str.findall(r"[0-9a-zA-Z\.-]+=([0-9a-zA-Z\.-]*)").to_list())
 
-    df = tools.si_convert(df, re.findall(r"([0-9a-z\.-]+)=[0-9a-z\.-]+", param[0]))
+    df = si_convert(df, re.findall(r"([0-9a-z\.-]+)=[0-9a-z\.-]+", param[0]))
     df = df.astype(float)
     outputs = df_in.loc[df_in["Point"] == "1", "Output"]
 
@@ -71,36 +73,6 @@ def ingest_summary(filename):
     return df.dropna(axis=1, how='all')
 
 
-def preprocess(infile, outfile):
-    tools.check_filetype(infile)
-
-    fin = open(infile)
-    columns = fin.readline().split(',')
-
-    index = re.search(r"([0:9])", columns[0]).group(0)
-    count = 1
-    labels = list()
-
-    for col in columns:
-        if (sig := re.search(r"([0-9]+)", col).group(1)) != index:
-            index = sig
-            count = 2
-        else:
-            count = count + 1
-
-        labels.append(f"{col.split()[0]}-{count // 2} {col.split()[1]}")
-
-    try:
-        fout = open(outfile, 'w')
-    except Exception as e:
-        text.error(f'Could not open {outfile} for writing ({e})', 255)
-
-    fout.write(f'{",".join(labels)}\n')
-
-    while line := fin.readline():
-        fout.write(line)
-
-
 def ingest_wave_mc(filename):
     temp_file = f'temp_{os.path.basename(filename)}'
     preprocess(filename, temp_file)
@@ -110,6 +82,6 @@ def ingest_wave_mc(filename):
     try:
         os.remove(temp_file)
     except Exception as e:
-        text.error(f'Could not remove temporary file {temp_file} ({e})')
+        error(f'Could not remove temporary file {temp_file} ({e})')
 
     return df
