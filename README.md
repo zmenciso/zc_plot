@@ -47,7 +47,7 @@ INPUT must be a valid CSV, e.g. `data/my_data.csv`.
 ```
 
 Kwargs can also be loaded from an external file by using the `-k` or `--kwargs`
-switch.  This file must be **line-delimited** and lines starting with `#` will
+switch.  This file must be **line-delimited**, and lines starting with `#` will
 be treated as comments.  When using an external file, any CLI kwargs will always
 be **appended after the external kwargs**.
 
@@ -61,17 +61,16 @@ a properly-formatted text file.
 
 ### Replot
 
-The most versatile of the plotting functions is `replot`, which accepts either a
-waveform **or** summary data **or** a raw CSV and plots arbitrary axes. `replot`
-supports several Seaborn plot styles, including lineplots, scatterplots,
-histograms, kde plots, and even some combinations (like histograms with kde,
-invoked with any string that contains both `hist` _and_ `kde`). Jointplots are
-also supported; you can include the type of the jointplot in `ptype` (e.g.
-`jointkde`, `hexjoint`). Heatmaps are in beta support.  Most of the Seaborn
-settings are exposed with the kwargs listed below:
+The most versatile of the plotting functions is `replot`, which supports several
+Seaborn plot styles, including lineplots, scatterplots, histograms, kde plots,
+and even some combinations (like histograms with kde, invoked with any string
+that contains both `hist` _and_ `kde`). Jointplots are also supported; you can
+include the type of the jointplot in `ptype` (e.g. `jointkde`, `hexjoint`).
+Heatmaps are in beta support.  Most of the Seaborn settings are exposed with the
+kwargs listed below:
 
 ```
-./cadence_plot.py replot [options] INPUT [kwargs]
+/zc_plot.py [options] replot INPUT [kwargs]
 
 Data
     x=str                       Change x (default: first column)
@@ -88,13 +87,15 @@ Figure
     xlabel=str      xl=str      Change x axis label (default: x)
     ylabel=str      yl=str      Change y axis label (default: y)
     ltitle=str      lt=str      Change legend title (default: automatic)
-    axes=str        ax=str      Change axes style (default: 'whitegrid')
+    axes=str        ax=str      Change axes style (default: custom)
     context=str     cx=str      Scale plot elements (default: 'notebook')
     logx=bool       lx=bool     Enable/disable log for x-axis (default: False)
     logy=bool       ly=bool     Enable/disable log for y-axis (default: False)
-    bbox=bool       bb=bool     Enable/disable bbox for legend (default: True)
+    logv=bool                   Enable/disable log for heatmap vlim (default: False)
+    bbox=str        bb=str      Bbox pos (right/center/inside/none, default: 'right')
     xlim=tuple                  Change xlim (default: full range)
     ylim=tuple                  Change ylim (default: full range)
+    vlim=tuple                  Change vlim (default: full range)
 Drawing
     width=float     w=float     Change marker or line width (default: Depends)
     alpha=float     a=float     Change alpha (default: 0.5)
@@ -107,7 +108,7 @@ Drawing
     multiple=str                Change multiple behavior (default: 'layer')
 File
     filetype=str    ft=str      Change filetype (default: 'svg')
-    filename=str    fn=str      Custom filename (default: automatic)
+    filename=str    fn=str      Custom filenam
 ```
 
 ### Help! It doesn't work!
