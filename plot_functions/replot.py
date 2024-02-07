@@ -32,7 +32,7 @@ Figure
     xlabel=str      xl=str      Change x axis label (default: x)
     ylabel=str      yl=str      Change y axis label (default: y)
     ltitle=str      lt=str      Change legend title (default: automatic)
-    axes=str        ax=str      Change axes style (default: 'whitegrid')
+    axes=str        ax=str      Change axes style (default: custom)
     context=str     cx=str      Scale plot elements (default: 'notebook')
     logx=bool       lx=bool     Enable/disable log for x-axis (default: False)
     logy=bool       ly=bool     Enable/disable log for y-axis (default: False)
@@ -317,7 +317,7 @@ def plot(df, kwargs):
         'xlim': None,
         'ylim': None,
         'vlim': None,
-        'axes': 'whitegrid',
+        'axes': None,
         'context': 'notebook',
         'palette': 'crest',
         'x': df.columns[0],
@@ -352,7 +352,10 @@ def plot(df, kwargs):
 
     # Set figure size and type
     plt.figure(figsize=param['figsize'])
-    sns.set_style(param['axes'])
+    if not param['axes']:
+        sns.set_style('darkgrid', {'axes.facecolor': '#ebebeb'})
+    else:
+        sns.set_style(param['axes'])
     sns.set_context(param['context'])
 
     # Change hue column to floats
