@@ -28,7 +28,7 @@ Data
     hscale=float    hs=float    Rescale hue (default: 1)
     sscale=float    ss=float    Rescale style (default: 1)
 Figure
-    figsize=tuple   fs=tuple    Change figsize (default: '6,3')
+    figsize=tuple   fs=tuple    Change figsize (default: '6.5,3')
     xlabel=str      xl=str      Change x axis label (default: x)
     ylabel=str      yl=str      Change y axis label (default: y)
     ltitle=str      lt=str      Change legend title (default: automatic)
@@ -114,11 +114,13 @@ def draw(y, df, cmap):
             ax = sns.heatmap(data=df,
                              cmap=cmap,
                              robust=True,
+                             annot=True,
                              norm=LogNorm() if param['logv'] else None)
         else:
             ax = sns.heatmap(data=df,
                              cmap=cmap,
                              robust=True,
+                             annot=True,
                              vmin=param['vlim'][0],
                              vmax=param['vlim'][1])
 
@@ -303,7 +305,7 @@ def rescale(df):
 def plot(df, kwargs):
     global param
     param = {
-        'figsize': '6,3',
+        'figsize': '6.5,3',
         'alpha': 0.8,
         'logy': 'F',
         'logx': 'F',
