@@ -22,8 +22,6 @@ def usage():
     prom=float      Change prominence for peak finding (default: 0.5)
     height=float    Change height for peak finding (default: prom)
     bits=int        Set number of bits (opt; performs sanity checks)
-    dnl=bool        Enable DNL, requires var == code voltage (default: True)
-    inl=bool        Enable INL, requires var == code voltage (default: False)
     tail=int        Display this number of the worst DNL (default: 0)''')
 
 
@@ -35,8 +33,6 @@ def plot(df, kwargs):
         'prom': 0.5,
         'height': None,
         'bits': 0,
-        'inl': False,
-        'dnl': True,
         'tail': 0
     }
 
@@ -82,25 +78,6 @@ def plot(df, kwargs):
 
     df_out = pd.DataFrame(np.array(codes), columns=[param['var'], 'code'])
     df_out['code'] = df_out['code'].astype(int)
-
-    if param['dnl']:
-        df_out['dnl'] = np.append(
-            np.array(df_out["code"][1:]) - np.array(df_out["code"][0:-1]),
-            np.nan)
-        df_out['abs_dnl'] = np.abs(df_out['dnl'])
-        if param['tail']:
-            print(
-                df_out.sort_values("abs_dnl",
-                                   ascending=False)[[param["var"],
-                                                     "dnl"]][0:param['tail']])
-
-    if param['inl'] and param['bits']:
-        vmax = np.max(df[param['var']])
-        vmin = np.min(df[param['var']])
-        codespace = np.linspace(vmin, vmax, num=2**param['bits'])
-        df_out['inl'] = [codespace[int(i)] for i in df_out["code"]]
-    elif param['inl']:
-        text.error('Bitwidth not specified; cannot compute INL')
 
     # Call replot
     replot.plot(df_out, kwargs)
