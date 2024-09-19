@@ -1,6 +1,7 @@
 config/
 data/
 logs/
-plot_functions/__pycache__/
 plots/
-src/__pycache__/
+target/
+Cargo.lock
+Cargo.toml
