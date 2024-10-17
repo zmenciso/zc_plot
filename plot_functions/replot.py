@@ -175,8 +175,8 @@ def draw(y, df, cmap):
                           kde=('kde' in PARAM['ptype']),
                           multiple=PARAM['multiple'],
                           cbar=True if y.lower() != 'none' else False,
-                          cbar_kws=dict(shrink=.75) if y.lower() != 'none' else None,
-                          palette=cmap)
+                          cbar_kws=dict(shrink=.75) if y.lower() != 'none' else None)
+                          # palette=cmap)
 
     elif 'kde' in PARAM['ptype']:
         ax = sns.kdeplot(data=df,
