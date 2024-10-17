@@ -18,19 +18,19 @@ impl Options {
         }
     }
 
-    pub fn update(&mut self, key: String, value: String) {
+    pub fn update(&mut self, key: &str, value: &str) {
         self.options.insert(
-            key,
-            value
+            key.to_string(),
+            value.to_string()
         );
     }
 
-    pub fn retrieve(&self, key: String) -> String {
-        if self.options.contains_key(&key) {
-            self.options.get(&key).unwrap().to_string()
+    pub fn retrieve(&self, key: &str) -> &str {
+        if self.options.contains_key(key) {
+            self.options.get(key).unwrap()
         }
         else {
-            "None".to_string()
+            "None"
         }
     }
 }
@@ -47,9 +47,8 @@ pub fn read(filename: std::path::PathBuf) -> Result<Options, Box<dyn Error>> {
 
         if let Some((param, value)) = line.split_once(':') {
             options.update(
-                // TODO: There has to be a better way to do this
-                param.trim().to_string(),
-                value.trim().to_string(),
+                param.trim(),
+                value.trim()
             );
         } else {
             eprintln!("Delimeter not found in string.");

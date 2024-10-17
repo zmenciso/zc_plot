@@ -7,7 +7,7 @@ use crate::ingest::DataFrame;
 use crate::options::Options;
 
 pub fn plot(df: DataFrame, options: Options) -> Result<(), Box<dyn Error>> {
-    let mut chart: Chart = match options.retrieve(String::from("axes")).as_str() {
+    let mut chart: Chart = match options.retrieve("axes") {
         _ => {
             Chart::new()
                 .grid(component::Grid::new())
@@ -16,7 +16,7 @@ pub fn plot(df: DataFrame, options: Options) -> Result<(), Box<dyn Error>> {
         }
     };
 
-    match options.retrieve(String::from("series")).as_str() {
+    match options.retrieve("series") {
         "line" => { line(df, options, &mut chart); },
         _ => { line(df, options, &mut chart); },
     }
@@ -28,5 +28,5 @@ fn line(df: DataFrame, options: Options, chart: &mut Chart) {
 
     // TODO: Catch errors here
     let mut renderer = ImageRenderer::new(1000, 800);
-    renderer.save(&chart, options.retrieve(String::from("filename"))).unwrap();
+    renderer.save(&chart, options.retrieve("filename")).unwrap();
 }

@@ -60,13 +60,13 @@ fn read_csv(filename: std::path::PathBuf, head: bool) -> Result<csv::Reader<File
 }
 
 
-fn update_header(df: &mut DataFrame, param: String) {
+fn update_header(df: &mut DataFrame, param: &str) {
+    let owned = param.to_string();
     // Check if parameter is in header
-    if !df.header.contains(&param) {
-        df.header.push(param);
+    if !df.header.contains(&owned) {
+        df.header.push(owned);
 
         // Add new dimension
-        // TODO: There has to be a better way of doing this
         let u: Vec<f32> = Default::default();
         df.dims.push(u);
     }
@@ -94,26 +94,25 @@ pub fn wave(filename: std::path::PathBuf, options: &mut Options) -> Result<DataF
     let headers: Vec<String> = headers.iter().map(String::from).collect();
 
     let (name, _g) = headers[0].split_once(' ').unwrap();
-    let name = String::from(name);
-    options.update(String::from("x"), String::from("x"));
-    options.update(String::from("y"), name.clone());
+    options.update("x", "x");
+    options.update("y", name);
 
-    let mut setting: Vec<Vec<String>> = Vec::new();
+    let mut setting: Vec<Vec<&str>> = Vec::new();
 
-    update_header(&mut df, String::from("x"));
+    update_header(&mut df, "x");
     update_header(&mut df, name);
 
     // Extract parameters
     for label in headers.iter() {
         if label.ends_with('Y') { continue; }
 
-        let mut temp: Vec<String> = Vec::new();
+        let mut temp: Vec<&str> = Vec::new();
         let parameters: Vec<&str> = label.split(&['(', ')'][..]).collect();
 
         for param in (parameters[1]).split(',') {
             let (header, val) = param.split_once('=').unwrap();
-            update_header(&mut df, String::from(header));
-            temp.push(String::from(val));
+            update_header(&mut df, header); 
+            temp.push(val);
         }
 
         setting.push(temp);
@@ -160,7 +159,7 @@ pub fn summary(filename: std::path::PathBuf, options: &mut Options) -> Result<Da
             for param in parameters.iter() {
                 let (header, val) = param.split_once('=').unwrap();
 
-                update_header(&mut df, String::from(header));
+                update_header(&mut df, header);
                 push_val(&mut df, val, i);
                 i += 1;
             }
@@ -168,14 +167,14 @@ pub fn summary(filename: std::path::PathBuf, options: &mut Options) -> Result<Da
 
         // Value line
         else if !(&record[3]).is_empty() {
-            update_header(&mut df, String::from(&record[2]));
+            update_header(&mut df, &record[2]);
             push_val(&mut df, &record[3], i);
             i += 1;
         }
     }
 
-    options.update(String::from("x"), df.header[0].clone());
-    options.update(String::from("y"), df.header[1].clone());
+    options.update("x", df.header[0].as_str());
+    options.update("y", df.header[1].as_str());
 
     Ok(df)
 }
@@ -200,8 +199,8 @@ pub fn raw(filename: std::path::PathBuf, options: &mut Options) -> Result<DataFr
         }
     }
 
-    options.update(String::from("x"), df.header[0].clone());
-    options.update(String::from("y"), df.header[1].clone());
+    options.update("x", df.header[0].as_str());
+    options.update("y", df.header[1].as_str());
 
     Ok(df)
 }

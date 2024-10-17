@@ -4,4 +4,3 @@ logs/
 plots/
 target/
 Cargo.lock
-Cargo.toml

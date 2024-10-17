@@ -27,8 +27,10 @@ fn main() -> Result<(), Box<dyn Error>> {
     let args = Args::parse();
     let df: ingest::DataFrame;
 
+    println!("Reading options!");
     let mut options = options::read(args.config)?;
 
+    println!("Ingesting data!");
     match args.dtype.unwrap().as_str() {
         "wave" => { df = ingest::wave(args.path, &mut options)?; },
         "summary" => { df = ingest::summary(args.path, &mut options)?; },
@@ -36,6 +38,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         _ => { df = ingest::raw(args.path, &mut options)?; },
     }
 
+    println!("Exporting!");
     if args.export.is_some() {
         ingest::export(args.export.unwrap(), df)?;
     }
