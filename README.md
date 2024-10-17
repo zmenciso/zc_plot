@@ -8,7 +8,7 @@ ZC Plot is written in Rust and uses the [**Charming** visualization
 library](https://github.com/yuankunzhang/charming).  Configuring plots is done
 through a simple text file.
 
-ZC Plot was born from a set of Python scripts I wrote for interfacing with
+ZC Plot was born from a jenky set of Python scripts I wrote for interfacing with
 [**Seaborn**](https://seaborn.pydata.org/), and those scripts are still
 available on the `Python` branch of this repository.
 
@@ -48,9 +48,9 @@ Arguments:
 
 Options:
   -d, --dtype <DTYPE>  [default: wave]
+  -e, --export <EXPORT>
   -i, --interact       
   -q, --quiet          
-  -e, --export
   -h, --help           Print help
   -V, --version        Print version
 ```
@@ -58,14 +58,16 @@ Options:
 `CONFIG` is a line-delimited file that describes the desired plot (see below),
 and lines starting with `#` will be treated as comments. Alternatively, using
 **interactive mode** (`-i` or `--interact`) previews the parsed data and opens
-an editor.  This is especially powerful when _combined with the `-e` or
-`--export` switch_, which saves the current configuration to a
-properly-formatted text file.
+an editor, and any additional configuration will then be saved to `CONFIG`.
+
+The `-e` or `--export` switch saves the parsed data into a plain CSV file for
+use in other applications.
 
 ### Configuration
 
 Configuration files are plaintext key/value pairs, separated with a semicolon.
-Below is a list of all configuration options:
+Lines beginning with `#` are ignored. Below is a list of all configuration
+options:
 
 ### File
 
@@ -83,10 +85,10 @@ Below is a list of all configuration options:
 | `hue` | str | none | Change data used for hue. | |
 | `style` | str | none | Change data used for style. | |
 | `size` | str | none | Change data used for style. | |
-| `xscale` | float | 1 | Rescale x-axis. | |
-| `yscale` | float | 1 | Rescale y-axis. | |
-| `hscale` | float | 1 | Rescale hue. | |
-| `sscale` | float | 1 | Rescale size. | |
+| `xscale` | float | `1` | Rescale x-axis. | |
+| `yscale` | float | `1` | Rescale y-axis. | |
+| `hscale` | float | `1` | Rescale hue. | |
+| `sscale` | float | `1` | Rescale size. | |
 
 ### Figure
 
@@ -96,9 +98,9 @@ Below is a list of all configuration options:
 | `xlabel` | str | x column | Change x-axis label. | |
 | `ylabel` | str | y column | Change y-axis label. | |
 | `ltitle` | str | automatic | Change legend title. | |
-| `theme` | str | | Change plot theme. | |
-| `logx` | bool | False | Enable/disable log for x-axis. | |
-| `logy` | bool | False | Enable/disable log for y-axis. | | 
+| `theme` | str | `default` | Change plot theme. | |
+| `logx` | bool | `false` | Enable/disable log for x-axis. | |
+| `logy` | bool | `false` | Enable/disable log for y-axis. | | 
 | `xlim` | tuple | full range | Change x-axis limits. | | 
 | `ylim` | tuple | full range | Change y-axis limits. | |
 
@@ -107,9 +109,9 @@ Below is a list of all configuration options:
 | Keyword | Type | Default | Description | Implemented |
 |---------|------|---------|-------------|-------------|
 | `width` | float | depends | Change marker or line width. | |
-| `alpha` | float | 0.75 | Change drawing opacity. | |
+| `alpha` | float | `0.75` | Change drawing opacity. | |
 | `palette` | str | | Change color palette. | |
-| `ptype` | str | `line` | Change plot type.  Options include `line`, `bar`, `box`, `candlestick`, `funnel`, `gauge`, `graph`, `heat`, `parallel`, `pie`, `radar`, `sankey`, `scatter`, `sunburst`, `tree`. | |
+| `series` | str | `line` | Change plot type.  Options include `line`, `bar`, `box`, `candlestick`, `funnel`, `gauge`, `graph`, `heat`, `parallel`, `pie`, `radar`, `sankey`, `scatter`, `sunburst`, `tree`. | |
 
 ### Help! It doesn't work!
 
