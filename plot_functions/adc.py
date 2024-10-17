@@ -101,7 +101,9 @@ def plot(df, kwargs):
                 print(df_new.sort_values("abs_dnl", ascending=False)[['code', "dnl"]][0:param['tail']].to_string(index=False))
 
         if param['inl']:
-            df_new['inl_sum'] = df_new['dnl'].cumsum()
+            if param['dnl']:
+                df_new['inl_sum'] = df_new['dnl'].cumsum()
+
             df_new['inl_cmp'] = (df_new['vd'] - pd.Series([codespace[int(i-1)] for i in df_new['code']])) / v_ideal
 
             df_new['inl'] = df_new['inl_cmp']
