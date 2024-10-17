@@ -2,7 +2,11 @@ use csv;
 use std::fs::File;
 use std::error::Error;
 use regex::Regex;
+use csv::Writer;
 
+use crate::options::Options;
+
+#[derive(Debug)]
 pub struct DataFrame {
     pub header: Vec<String>,
     pub dims: Vec<Vec<f32>>
@@ -18,24 +22,24 @@ impl DataFrame {
 }
 
 fn si_convert(ins: &str) -> Result<String, Box<dyn Error>> {
-    let re = Regex::new(r"[0-9\.-]+([a-zA-Z])")?;
+    let re = Regex::new(r"[0-9\.-]+([munpfaKMGTP])")?;
     let prefix = re.captures(ins);
 
     if prefix.is_some() {
         let prefix = String::from(&prefix.unwrap()[1]);
         let repl = match prefix.as_str() {
-            "m" => "1e-3",
-            "u" => "1e-6",
-            "n" => "1e-9",
-            "p" => "1e-12",
-            "f" => "1e-15",
-            "a" => "1e-18",
-            "K" => "1e3",
-            "M" => "1e6",
-            "G" => "1e9",
-            "T" => "1e12",
-            "P" => "1e15",
-            _ => "1e1"
+            "m" => "e-3",
+            "u" => "e-6",
+            "n" => "e-9",
+            "p" => "e-12",
+            "f" => "e-15",
+            "a" => "e-18",
+            "K" => "e3",
+            "M" => "e6",
+            "G" => "e9",
+            "T" => "e12",
+            "P" => "e15",
+            _ => "e1"
         };
 
         Ok(ins.replace(prefix.as_str(), repl))
@@ -54,6 +58,7 @@ fn read_csv(filename: std::path::PathBuf, head: bool) -> Result<csv::Reader<File
 
     Ok(rdr)
 }
+
 
 fn update_header(df: &mut DataFrame, param: String) {
     // Check if parameter is in header
@@ -81,23 +86,65 @@ fn push_val(df: &mut DataFrame, val: &str, addr: usize) {
     df.dims[addr].push(f);
 }
 
-pub fn wave(filename: std::path::PathBuf) -> Result<DataFrame, Box<dyn Error>> {
+pub fn wave(filename: std::path::PathBuf, options: &mut Options) -> Result<DataFrame, Box<dyn Error>> {
     let mut rdr = read_csv(filename, true)?;
     let mut df = DataFrame::new();
 
     let headers = rdr.headers()?.clone();
     let headers: Vec<String> = headers.iter().map(String::from).collect();
 
+    let (name, _g) = headers[0].split_once(' ').unwrap();
+    let name = String::from(name);
+    options.update(String::from("x"), String::from("x"));
+    options.update(String::from("y"), name.clone());
 
+    let mut setting: Vec<Vec<String>> = Vec::new();
 
+    update_header(&mut df, String::from("x"));
+    update_header(&mut df, name);
 
+    // Extract parameters
+    for label in headers.iter() {
+        if label.ends_with('Y') { continue; }
+
+        let mut temp: Vec<String> = Vec::new();
+        let parameters: Vec<&str> = label.split(&['(', ')'][..]).collect();
+
+        for param in (parameters[1]).split(',') {
+            let (header, val) = param.split_once('=').unwrap();
+            update_header(&mut df, String::from(header));
+            temp.push(String::from(val));
+        }
+
+        setting.push(temp);
+    }
+
+    // Add wave data
     for result in rdr.records() {
+        let record = result?;
+
+        for col in 0..record.len() {
+            // x-axis
+            if col % 2 == 0 {
+                push_val(&mut df, &record[col], 0);
+            }
+
+            // y-axis
+            if col % 2 == 1 {
+                push_val(&mut df, &record[col], 1);
+
+                // Push paramters
+                for (i, dim) in setting[col/2].iter().enumerate() {
+                    push_val(&mut df, dim, i+2);
+                }
+            }
+        }
     }
 
     Ok(df)
 }
 
-pub fn summary(filename: std::path::PathBuf) -> Result<DataFrame, Box<dyn Error>> {
+pub fn summary(filename: std::path::PathBuf, options: &mut Options) -> Result<DataFrame, Box<dyn Error>> {
     let mut rdr = read_csv(filename, true)?;
     let mut df = DataFrame::new();
     let mut i = 0;
@@ -109,7 +156,6 @@ pub fn summary(filename: std::path::PathBuf) -> Result<DataFrame, Box<dyn Error>
         if (&record[0]).contains("Parameters") {
             i = 0;
             let parameters: Vec<&str> = (&record[0]).strip_prefix("Parameters: ").unwrap().split(", ").collect();
-            println!("{:?}", parameters);
 
             for param in parameters.iter() {
                 let (header, val) = param.split_once('=').unwrap();
@@ -128,10 +174,13 @@ pub fn summary(filename: std::path::PathBuf) -> Result<DataFrame, Box<dyn Error>
         }
     }
 
+    options.update(String::from("x"), df.header[0].clone());
+    options.update(String::from("y"), df.header[1].clone());
+
     Ok(df)
 }
 
-pub fn raw(filename: std::path::PathBuf) -> Result<DataFrame, Box<dyn Error>> {
+pub fn raw(filename: std::path::PathBuf, options: &mut Options) -> Result<DataFrame, Box<dyn Error>> {
     let mut rdr = read_csv(filename, true)?;
     let mut df = DataFrame::new();
 
@@ -151,5 +200,24 @@ pub fn raw(filename: std::path::PathBuf) -> Result<DataFrame, Box<dyn Error>> {
         }
     }
 
+    options.update(String::from("x"), df.header[0].clone());
+    options.update(String::from("y"), df.header[1].clone());
+
     Ok(df)
+}
+
+pub fn export(filename: std::path::PathBuf, df: DataFrame) -> Result<(), Box<dyn Error>> {
+    let mut wtr = Writer::from_path(filename)?;
+
+    wtr.write_record(&df.header)?;
+    for row in 0..df.dims[0].len() {
+        let mut vec: Vec<String> = Vec::new();
+        for col in 0..df.dims.len() {
+            vec.push(df.dims[col][row].to_string());
+        }
+
+        wtr.write_record(&vec)?;
+    }
+
+    Ok(())
 }
