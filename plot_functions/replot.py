@@ -13,9 +13,15 @@ import sys
 import os
 import warnings
 
+FONT = {
+    'family': 'Arial',
+    'weight': 'bold',
+    'stretch': 'condensed'
+}
+
 
 PARAM = {
-    'figsize': '6.5,3',
+    'figsize': '6,3',
     'alpha': 0.8,
     'logy': 'F',
     'logx': 'F',
@@ -133,7 +139,8 @@ def draw(y, df, cmap):
                           alpha=PARAM['alpha'],
                           estimator=PARAM['stat'] if PARAM['stat'] else 'mean',
                           lw=PARAM['width'] if PARAM['width'] else 2,
-                          errorbar=('ci', PARAM['ci']),
+                          errorbar=('sd'),
+                          # errorbar=('ci', PARAM['ci']),
                           palette=cmap)
 
     elif 'heat' in PARAM['ptype']:
@@ -232,12 +239,12 @@ def draw_labels(ax):
     if PARAM['xlabel'].lower() == 'none':
         plt.xlabel(None)
     else:
-        plt.xlabel(PARAM['xlabel'])
+        plt.xlabel(PARAM['xlabel'], FONT)
 
     if PARAM['ylabel'].lower() == 'none':
         plt.ylabel(None)
     else:
-        plt.ylabel(PARAM['ylabel'])
+        plt.ylabel(PARAM['ylabel'], FONT)
 
     # Set axes limits
     if PARAM['xlim']:
@@ -364,6 +371,9 @@ def plot(df, kwargs):
     plt.figure(figsize=PARAM['figsize'])
     if not PARAM['axes']:
         sns.set_style('darkgrid', {'axes.facecolor': '#ebebeb'})
+        plt.rcParams["font.family"] = 'Arial'
+        plt.rcParams['font.stretch'] = 'condensed'
+        plt.rcParams['font.weight'] = 'bold'
     else:
         sns.set_style(PARAM['axes'])
     sns.set_context(PARAM['context'])
