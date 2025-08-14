@@ -74,7 +74,7 @@ options:
 | Keyword | Type | Default | Description | Implemented |
 |---------|------|---------|-------------|-------------|
 | `filetype` | str | `svg` | Change file type.  Supports HTML, SVG, PNG, JPEG, GIF, WEBP, PNM, TIFF, TGA, DDS, BMP, ICO, HDR, OPENEXR, FARBFELD, AVIF, and QOI | |
-| `filename` | str | automatic | Change output file name. | |
+| `filename` | str | automatic | Change output file name. | ✅ |
 
 ### Data
 
