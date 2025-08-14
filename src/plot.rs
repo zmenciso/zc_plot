@@ -1,32 +1,21 @@
+use charming::{
+    Chart,
+};
 use std::error::Error;
-use charming::Chart;
-use charming::component;
-use charming::ImageRenderer;
 
 use crate::ingest::DataFrame;
 use crate::options::Options;
 
-pub fn plot(df: DataFrame, options: Options) -> Result<(), Box<dyn Error>> {
-    let mut chart: Chart = match options.retrieve("axes") {
-        _ => {
-            Chart::new()
-                .grid(component::Grid::new())
-                .x_axis(component::Axis::new())
-                .y_axis(component::Axis::new())
-        }
+pub fn plot(df: &DataFrame, options: &Options) -> Result<(), Box<dyn Error>> {
+    let mut chart = match options.retrieve("series") {
+        Some("line") => { line(df, options, &mut chart); },
+        Some("hist") => { hist(df, options, &mut chart); },
+        None => { line(df, &options, &mut chart); },
     };
-
-    match options.retrieve("series") {
-        "line" => { line(df, options, &mut chart); },
-        _ => { line(df, options, &mut chart); },
-    }
 
     Ok(())
 }
 
-fn line(df: DataFrame, options: Options, chart: &mut Chart) {
+fn line (df: &DataFrame, options: &Options, &mut chart: Plot2D) -> Chart {
 
-    // TODO: Catch errors here
-    let mut renderer = ImageRenderer::new(1000, 800);
-    renderer.save(&chart, options.retrieve("filename")).unwrap();
 }

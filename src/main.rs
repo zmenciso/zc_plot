@@ -1,9 +1,11 @@
 use clap::Parser;
 use std::error::Error;
 
+pub mod tools;
 pub mod ingest;
 pub mod options;
-pub mod plot;
+// pub mod plot;
+// pub mod log;
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
@@ -31,17 +33,18 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut options = options::read(args.config)?;
 
     println!("Ingesting data!");
-    match args.dtype.unwrap().as_str() {
-        "wave" => { df = ingest::wave(args.path, &mut options)?; },
-        "summary" => { df = ingest::summary(args.path, &mut options)?; },
-        "raw" => { df = ingest::raw(args.path, &mut options)?; },
-        _ => { df = ingest::raw(args.path, &mut options)?; },
-    }
+    df = match args.dtype.unwrap().as_str() {
+        "wave" => ingest::wave(args.path, &mut options)?,
+        // "summary" => ingest::summary(args.path, &mut options)?,
+        // "raw" => ingest::raw(args.path, &mut options)?,
+        _ => ingest::wave(args.path, &mut options)?,
+    };
 
+    println!("{:?}", df);
     println!("Exporting!");
-    if args.export.is_some() {
-        ingest::export(args.export.unwrap(), df)?;
-    }
+    // if args.export.is_some() {
+    //     ingest::export(args.export.unwrap(), df)?;
+    // }
 
     Ok(())
 }
